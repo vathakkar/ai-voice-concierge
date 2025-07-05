@@ -28,7 +28,7 @@
 # Azure resource configuration
 # Update these values to match your Azure App Service setup
 RESOURCE_GROUP="ai-concierge"
-APP_NAME="ai-voice-concierge"
+APP_NAME="ai-voice-concierge-canadacentral"
 
 echo "Downloading logs from Azure App Service..."
 echo "Resource Group: $RESOURCE_GROUP"

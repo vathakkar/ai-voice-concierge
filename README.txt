@@ -200,7 +200,7 @@ SQLITE_DB_PATH=calls.db
    - Create Azure Key Vault and store all secrets
    - Create Azure SQL Database
    - Create Azure OpenAI resource and deployment
-   - Create App Service with Docker support
+   - Create App Service with Docker support (B2 SKU recommended)
 
 2. **Configure Environment Variables**:
    - Set all required environment variables in App Service Configuration
@@ -215,6 +215,31 @@ SQLITE_DB_PATH=calls.db
 4. **Configure Twilio Webhooks**:
    - Set webhook URL to: `https://your-app.azurewebsites.net/twilio/voice`
    - Configure for POST requests
+
+### Critical Deployment Learnings
+
+#### Docker Platform Requirements
+- **MUST build for linux/amd64 platform**: Azure App Service requires linux/amd64 images
+- **Apple Silicon (M1/M2) users**: Use `--platform linux/amd64` when building Docker images
+- **Build command**: `docker build --platform linux/amd64 -t your-image-name .`
+
+#### Azure Container Registry (ACR) Authentication
+- **Option 1 (Recommended)**: Use managed identity with AcrPull role
+  - Enable managed identity on the web app
+  - Assign "AcrPull" role to the managed identity for your ACR
+- **Option 2**: Use ACR admin credentials
+  - Get admin credentials from ACR → Access keys
+  - Configure in App Service → Configuration → Application settings
+
+#### Azure Key Vault Access
+- **Managed Identity Setup**: Enable managed identity on the web app
+- **Key Vault Permissions**: Assign "Key Vault Secrets User" role to the managed identity
+- **Scope**: Set permissions at the Key Vault level, not individual secrets
+
+#### App Service Configuration
+- **Container Settings**: Ensure `linuxFxVersion` is set to container deployment
+- **Platform**: Must be Linux (not Windows) for container deployments
+- **SKU**: B2 or higher recommended for production workloads
 
 ### Local Development
 1. **Install Dependencies**:
