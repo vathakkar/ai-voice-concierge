@@ -17,6 +17,114 @@ This project is a production-ready AI Voice Concierge system that answers phone 
 
 ---
 
+## Security & API Key Management
+
+### ⚠️ CRITICAL SECURITY NOTES
+- **NEVER commit API keys or secrets to version control**
+- **NEVER hardcode sensitive information in the codebase**
+- **ALWAYS use Azure Key Vault in production**
+- **ALWAYS use environment variables in development**
+
+### Production Security (Azure Key Vault)
+The application automatically detects when running in Azure App Service and uses Azure Key Vault with managed identity for secure secret retrieval. All secrets are stored in Key Vault and accessed securely.
+
+### Development Security (Environment Variables)
+For local development, use environment variables or a `.env` file (ensure `.env` is in `.gitignore`).
+
+---
+
+## Environment Variables
+
+### Required Environment Variables
+
+#### Azure OpenAI Configuration
+```bash
+# Azure OpenAI API Key (from Azure Portal)
+AZURE_OPENAI_KEY=your_azure_openai_api_key_here
+
+# Azure OpenAI Endpoint (from Azure Portal)
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+
+# Azure OpenAI Deployment Name (from Azure Portal)
+AZURE_OPENAI_DEPLOYMENT=your_deployment_name
+```
+
+#### Twilio Configuration
+```bash
+# Twilio Account SID (from Twilio Console)
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+
+# Twilio Auth Token (from Twilio Console)
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+
+# Twilio Phone Number (your Twilio number)
+TWILIO_PHONE_NUMBER=+1234567890
+```
+
+#### Phone Number Configuration
+```bash
+# Real phone number for call transfers (your actual phone number)
+REAL_PHONE_NUMBER=+1234567890
+```
+
+#### Database Configuration
+```bash
+# Set to 'true' for Azure SQL, 'false' for SQLite (development)
+USE_AZURE_SQL=true
+
+# Azure SQL Connection String (from Azure Portal)
+AZURE_SQL_CONNECTION_STRING=Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;
+
+# SQLite Database Path (for development only)
+SQLITE_DB_PATH=calls.db
+```
+
+### Optional Environment Variables
+
+#### Azure Speech Services (Unused - Legacy)
+```bash
+# Azure Speech Services Key (currently unused)
+AZURE_SPEECH_KEY=your_azure_speech_key
+
+# Azure Speech Services Region (currently unused)
+AZURE_SPEECH_REGION=westus2
+
+# Text-to-Speech Voice (currently unused)
+TTS_VOICE=en-US-JennyNeural
+```
+
+#### Azure Communication Services (Legacy - Unused)
+```bash
+# ACS Connection String (legacy, not used in current Twilio implementation)
+ACS_CONNECTION_STRING=your_acs_connection_string
+
+# ACS Phone Number (legacy, not used in current Twilio implementation)
+ACS_PHONE_NUMBER=+1234567890
+```
+
+### Environment Variable Setup
+
+#### For Local Development
+1. Create a `.env` file in the project root
+2. Add your environment variables:
+```bash
+# Copy this template and fill in your values
+AZURE_OPENAI_KEY=your_key_here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=your_deployment
+REAL_PHONE_NUMBER=+1234567890
+USE_AZURE_SQL=false
+SQLITE_DB_PATH=calls.db
+```
+
+#### For Azure App Service (Production)
+1. Go to Azure Portal → Your App Service → Configuration
+2. Add Application Settings for each environment variable
+3. Ensure Azure Key Vault integration is configured
+4. Set `USE_AZURE_SQL=true` for production
+
+---
+
 ## Call Flow
 1. **Incoming Call**: Twilio forwards the call to `/twilio/voice`.
 2. **Greeting**: Twilio handles the initial greeting, then uses `<Gather input="speech">` to collect their reason for calling.
@@ -76,17 +184,52 @@ This project is a production-ready AI Voice Concierge system that answers phone 
 
 ---
 
-## Environment Variables
-- `USE_AZURE_SQL=true` (production)
-- `AZURE_SQL_CONNECTION_STRING` (from Key Vault)
-- `REAL_PHONE_NUMBER` (Vansh's actual phone number for transfers)
-- All other secrets (OpenAI, Twilio, etc.) are also loaded from Key Vault.
-
----
-
 ## Deployment
-- Use `deploy.sh` to build, push, and restart the Azure App Service.
-- Dockerfile ensures all dependencies (including ODBC driver) are installed.
+
+### Prerequisites
+1. Azure subscription with access to:
+   - Azure App Service
+   - Azure Key Vault
+   - Azure OpenAI Service
+   - Azure SQL Database
+2. Twilio account with a phone number
+3. Docker installed locally
+
+### Deployment Steps
+1. **Set up Azure Resources**:
+   - Create Azure Key Vault and store all secrets
+   - Create Azure SQL Database
+   - Create Azure OpenAI resource and deployment
+   - Create App Service with Docker support
+
+2. **Configure Environment Variables**:
+   - Set all required environment variables in App Service Configuration
+   - Ensure Azure Key Vault integration is enabled
+
+3. **Deploy Application**:
+   ```bash
+   # Use the provided deploy script
+   ./deploy.sh
+   ```
+
+4. **Configure Twilio Webhooks**:
+   - Set webhook URL to: `https://your-app.azurewebsites.net/twilio/voice`
+   - Configure for POST requests
+
+### Local Development
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set Environment Variables**:
+   - Create `.env` file with required variables
+   - Set `USE_AZURE_SQL=false` for local SQLite
+
+3. **Run Application**:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
 ---
 
@@ -110,6 +253,30 @@ This project is a production-ready AI Voice Concierge system that answers phone 
 - All Azure Communication Services (ACS) logic and endpoints have been removed.
 - Voicemail functionality has been removed in favor of text suggestions.
 - Only Twilio, Azure OpenAI, and Azure SQL code remains.
+
+---
+
+## Security Best Practices
+
+### Code Security
+- ✅ No hardcoded secrets in codebase
+- ✅ Azure Key Vault integration for production
+- ✅ Environment variable fallback for development
+- ✅ Secure logging (no sensitive data in logs)
+- ✅ Input validation and error handling
+
+### Deployment Security
+- ✅ HTTPS enforcement in production
+- ✅ Managed identity for Azure services
+- ✅ Network security groups configured
+- ✅ Regular security updates
+- ✅ Monitoring and alerting
+
+### API Security
+- ✅ Secure API key management
+- ✅ Rate limiting (via Twilio)
+- ✅ Input sanitization
+- ✅ Error handling without information disclosure
 
 ---
 
