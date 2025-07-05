@@ -1,0 +1,775 @@
+2025-07-04T21:28:49.8196186Z Container start method called.
+2025-07-04T21:28:49.8301226Z Establishing network.
+2025-07-04T21:28:49.8307863Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-voice-concierge:latest.
+2025-07-04T21:28:52.3966133Z Container pull image failed with reason: ImagePullFailure. Revert by terminate.
+2025-07-04T21:28:52.3983458Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T21:28:52.4070449Z Container spec TerminationMessagePolicy  path 
+2025-07-04T21:28:52.4160909Z Container is terminated. Total time elapsed: 3 ms.
+2025-07-04T21:28:52.4169001Z Site container: ai-voice-concierge terminated during site startup.
+2025-07-04T21:28:52.4562208Z Failed to start site. Revert by stopping site.
+2025-07-04T21:28:52.4677821Z Site: ai-voice-concierge stopped.
+2025-07-04T21:29:39.249Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: ad37f025-f4fb-49cb-974c-86c330cc410b"}
+
+2025-07-04T21:29:39.250Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:29:39.258Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:29:44.949Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:29:14.267Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:30:23.551Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: cc2bda14-2dda-4e87-8cb0-fa748ff6c1c6"}
+
+2025-07-04T21:30:23.553Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:30:23.562Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:30:30.093Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:29:55.733Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:30:52.200Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: 1a485ae8-1fd0-4f5b-a230-14f29841013d"}
+
+2025-07-04T21:30:52.201Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:30:52.206Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:30:57.756Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:30:40.882Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:31:26.363Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: 04941777-21b1-4806-939f-c30d15bc86dd"}
+
+2025-07-04T21:31:26.364Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:31:26.374Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:31:32.267Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:31:10.980Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:34:09.384Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: dd6c49f1-f275-403b-9757-3da153f69939"}
+
+2025-07-04T21:34:09.388Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:34:09.399Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:34:14.829Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:33:53.519Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:36:32.800Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: efb9d6cb-77b3-4a28-998c-b45528016a73"}
+
+2025-07-04T21:36:32.802Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:36:32.821Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:36:38.325Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:36:20.877Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T21:42:28.704Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: dc611cbf-883b-4752-a617-743438cfe2d9"}
+
+2025-07-04T21:42:28.706Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T21:42:28.715Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T21:42:34.356Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:41:59.352Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T22:00:19.529Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-voice-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: 475d5312-5335-4427-9281-3b5705f98aef"}
+
+2025-07-04T22:00:19.535Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T22:00:19.539Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T22:00:25.143Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T21:59:54.535Z INFO  - Logging is not enabled for this container.
+Please use https://aka.ms/linux-diagnostics to enable logging to see container logs here.
+2025-07-04T22:04:05.234Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: aedff978-8141-4af5-8ef0-27539a88ca69"}
+
+2025-07-04T22:04:05.251Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T22:04:05.255Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T22:04:11.157Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+cierge.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 -e HTTP_LOGGING_ENABLED=1 mcr.microsoft.com/appsvc/msitokenservice:stage4 REDACTED
+2025-07-04T22:06:46.334Z INFO  - Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:06:47.463Z INFO  - latest Pulling from ai-concierge
+2025-07-04T22:06:47.564Z INFO  -  
+2025-07-04T22:06:47.566Z ERROR - no matching manifest for linux/amd64 in the manifest list entriesErr: 0, Message: no matching manifest for linux/amd64 in the manifest list entries
+2025-07-04T22:06:47.569Z INFO  - Pull Image failed, Time taken: 1 Seconds
+2025-07-04T22:06:47.576Z ERROR - Pulling docker image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest failed:
+2025-07-04T22:06:48.079Z ERROR - DockerApiException: Docker API responded with status code=InternalServerError, response={"message":"Head \"https://aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/v2/ai-concierge/manifests/latest\": unauthorized: authentication required, visit https://aka.ms/acr/authorization for more information. CorrelationId: 3450a812-86a5-4b16-ab5b-825a4d233d04"}
+
+2025-07-04T22:06:48.087Z WARN  - Image pull failed. Defaulting to local copy if present.
+2025-07-04T22:06:48.107Z ERROR - Image pull failed: Verify docker image configuration and credentials (if using private repository)
+2025-07-04T22:06:53.568Z INFO  - Stopping site ai-voice-concierge because it failed during startup.
+2025-07-04T22:12:36.355Z INFO  - Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:12:37.610Z INFO  - latest Pulling from ai-concierge
+2025-07-04T22:12:38.026Z INFO  - 3da95a905ed5 Already exists
+2025-07-04T22:12:38.027Z INFO  - 483d0dd37518 Pulling fs layer
+2025-07-04T22:12:38.028Z INFO  - 02a5d22e0d6f Pulling fs layer
+2025-07-04T22:12:38.029Z INFO  - 471797cdda8c Pulling fs layer
+2025-07-04T22:12:38.030Z INFO  - 192aab3e06da Pulling fs layer
+2025-07-04T22:12:38.031Z INFO  - 5c419fbabea9 Pulling fs layer
+2025-07-04T22:12:38.032Z INFO  - 1fb43c0d3289 Pulling fs layer
+2025-07-04T22:12:38.035Z INFO  - ffb2ea2a4f0e Pulling fs layer
+2025-07-04T22:12:38.351Z INFO  - 471797cdda8c Downloading 249B / 249B
+2025-07-04T22:12:38.352Z INFO  - 471797cdda8c Verifying Checksum
+2025-07-04T22:12:38.353Z INFO  - 471797cdda8c Download complete
+2025-07-04T22:12:38.388Z INFO  - 192aab3e06da Downloading 92B / 92B
+2025-07-04T22:12:38.390Z INFO  - 192aab3e06da Verifying Checksum
+2025-07-04T22:12:38.391Z INFO  - 192aab3e06da Download complete
+2025-07-04T22:12:38.392Z INFO  - ffb2ea2a4f0e Downloading 3KB / 18KB
+2025-07-04T22:12:38.394Z INFO  - ffb2ea2a4f0e Downloading 18KB / 18KB
+2025-07-04T22:12:38.395Z INFO  - ffb2ea2a4f0e Verifying Checksum
+2025-07-04T22:12:38.395Z INFO  - ffb2ea2a4f0e Download complete
+2025-07-04T22:12:39.092Z INFO  - 5c419fbabea9 Downloading 224B / 224B
+2025-07-04T22:12:39.093Z INFO  - 5c419fbabea9 Verifying Checksum
+2025-07-04T22:12:39.094Z INFO  - 5c419fbabea9 Download complete
+2025-07-04T22:12:39.112Z INFO  - 1fb43c0d3289 Downloading 527KB / 58MB
+2025-07-04T22:12:39.113Z INFO  - 483d0dd37518 Downloading 431KB / 3MB
+2025-07-04T22:12:39.114Z INFO  - 1fb43c0d3289 Downloading 1MB / 58MB
+2025-07-04T22:12:39.115Z INFO  - 02a5d22e0d6f Downloading 959KB / 15MB
+2025-07-04T22:12:39.123Z INFO  - 483d0dd37518 Verifying Checksum
+2025-07-04T22:12:39.124Z INFO  - 483d0dd37518 Download complete
+2025-07-04T22:12:39.173Z INFO  - 02a5d22e0d6f Downloading 4MB / 15MB
+2025-07-04T22:12:39.253Z INFO  - 1fb43c0d3289 Downloading 8MB / 58MB
+2025-07-04T22:12:39.496Z INFO  - 1fb43c0d3289 Downloading 9MB / 58MB
+2025-07-04T22:12:39.565Z INFO  - 1fb43c0d3289 Downloading 10MB / 58MB
+2025-07-04T22:12:39.567Z INFO  - 02a5d22e0d6f Downloading 7MB / 15MB
+2025-07-04T22:12:40.599Z INFO  - 1fb43c0d3289 Downloading 11MB / 58MB
+2025-07-04T22:12:40.600Z INFO  - 483d0dd37518 Extracting 1MB / 3MB
+2025-07-04T22:12:40.601Z INFO  - 1fb43c0d3289 Downloading 12MB / 58MB
+2025-07-04T22:12:40.609Z INFO  - 02a5d22e0d6f Downloading 12MB / 15MB
+2025-07-04T22:12:40.610Z INFO  - 02a5d22e0d6f Downloading 13MB / 15MB
+2025-07-04T22:12:40.620Z INFO  - 1fb43c0d3289 Downloading 15MB / 58MB
+2025-07-04T22:12:40.621Z INFO  - 1fb43c0d3289 Downloading 16MB / 58MB
+2025-07-04T22:12:40.629Z INFO  - 02a5d22e0d6f Downloading 15MB / 15MB
+2025-07-04T22:12:40.631Z INFO  - 02a5d22e0d6f Verifying Checksum
+2025-07-04T22:12:40.632Z INFO  - 02a5d22e0d6f Download complete
+2025-07-04T22:12:40.639Z INFO  - 483d0dd37518 Extracting 3MB / 3MB
+2025-07-04T22:12:40.641Z INFO  - 1fb43c0d3289 Downloading 19MB / 58MB
+2025-07-04T22:12:41.604Z INFO  - 483d0dd37518 Pull complete
+2025-07-04T22:12:41.605Z INFO  - 1fb43c0d3289 Downloading 24MB / 58MB
+2025-07-04T22:12:41.606Z INFO  - 02a5d22e0d6f Extracting 1MB / 15MB
+2025-07-04T22:12:41.607Z INFO  - 1fb43c0d3289 Downloading 25MB / 58MB
+2025-07-04T22:12:41.656Z INFO  - 1fb43c0d3289 Downloading 26MB / 58MB
+2025-07-04T22:12:41.657Z INFO  - 02a5d22e0d6f Extracting 3MB / 15MB
+2025-07-04T22:12:41.664Z INFO  - 02a5d22e0d6f Extracting 4MB / 15MB
+2025-07-04T22:12:41.986Z INFO  - 02a5d22e0d6f Extracting 4MB / 15MB
+2025-07-04T22:12:42.088Z INFO  - 1fb43c0d3289 Downloading 28MB / 58MB
+2025-07-04T22:12:42.089Z INFO  - 02a5d22e0d6f Extracting 6MB / 15MB
+2025-07-04T22:12:42.509Z INFO  - 02a5d22e0d6f Extracting 8MB / 15MB
+2025-07-04T22:12:42.510Z INFO  - 02a5d22e0d6f Extracting 9MB / 15MB
+2025-07-04T22:12:42.992Z INFO  - 1fb43c0d3289 Downloading 31MB / 58MB
+2025-07-04T22:12:42.993Z INFO  - 02a5d22e0d6f Extracting 10MB / 15MB
+2025-07-04T22:12:43.055Z INFO  - 1fb43c0d3289 Downloading 34MB / 58MB
+2025-07-04T22:12:43.284Z INFO  - 02a5d22e0d6f Extracting 10MB / 15MB
+2025-07-04T22:12:43.386Z INFO  - 1fb43c0d3289 Downloading 35MB / 58MB
+2025-07-04T22:12:43.527Z INFO  - 1fb43c0d3289 Downloading 36MB / 58MB
+2025-07-04T22:12:43.678Z INFO  - 1fb43c0d3289 Downloading 38MB / 58MB
+2025-07-04T22:12:43.685Z INFO  - 02a5d22e0d6f Extracting 11MB / 15MB
+2025-07-04T22:12:43.756Z INFO  - 02a5d22e0d6f Extracting 11MB / 15MB
+2025-07-04T22:12:44.130Z INFO  - 1fb43c0d3289 Downloading 42MB / 58MB
+2025-07-04T22:12:44.149Z INFO  - 02a5d22e0d6f Extracting 12MB / 15MB
+2025-07-04T22:12:44.301Z INFO  - 1fb43c0d3289 Downloading 43MB / 58MB
+2025-07-04T22:12:44.341Z INFO  - 02a5d22e0d6f Extracting 12MB / 15MB
+2025-07-04T22:12:44.480Z INFO  - 1fb43c0d3289 Downloading 44MB / 58MB
+2025-07-04T22:12:44.770Z INFO  - 02a5d22e0d6f Extracting 13MB / 15MB
+2025-07-04T22:12:45.111Z INFO  - 02a5d22e0d6f Extracting 13MB / 15MB
+2025-07-04T22:12:45.141Z INFO  - 1fb43c0d3289 Downloading 49MB / 58MB
+2025-07-04T22:12:45.471Z INFO  - 1fb43c0d3289 Downloading 50MB / 58MB
+2025-07-04T22:12:45.473Z INFO  - 02a5d22e0d6f Extracting 14MB / 15MB
+2025-07-04T22:12:45.552Z INFO  - 1fb43c0d3289 Downloading 52MB / 58MB
+2025-07-04T22:12:45.795Z INFO  - 02a5d22e0d6f Extracting 14MB / 15MB
+2025-07-04T22:12:46.046Z INFO  - 02a5d22e0d6f Extracting 14MB / 15MB
+2025-07-04T22:12:46.074Z INFO  - 1fb43c0d3289 Verifying Checksum
+2025-07-04T22:12:46.075Z INFO  - 1fb43c0d3289 Download complete
+2025-07-04T22:12:46.258Z INFO  - 02a5d22e0d6f Extracting 15MB / 15MB
+2025-07-04T22:12:46.316Z INFO  - 02a5d22e0d6f Pull complete
+2025-07-04T22:12:46.326Z INFO  - 471797cdda8c Extracting 249B / 249B
+2025-07-04T22:12:46.383Z INFO  - 471797cdda8c Extracting 249B / 249B
+2025-07-04T22:12:46.420Z INFO  - 471797cdda8c Pull complete
+2025-07-04T22:12:46.430Z INFO  - 192aab3e06da Extracting 92B / 92B
+2025-07-04T22:12:46.441Z INFO  - 192aab3e06da Extracting 92B / 92B
+2025-07-04T22:12:46.453Z INFO  - 192aab3e06da Pull complete
+2025-07-04T22:12:46.464Z INFO  - 5c419fbabea9 Extracting 224B / 224B
+2025-07-04T22:12:46.481Z INFO  - 5c419fbabea9 Extracting 224B / 224B
+2025-07-04T22:12:46.492Z INFO  - 5c419fbabea9 Pull complete
+2025-07-04T22:12:46.650Z INFO  - 1fb43c0d3289 Extracting 544KB / 58MB
+2025-07-04T22:12:46.811Z INFO  - 1fb43c0d3289 Extracting 1MB / 58MB
+2025-07-04T22:12:47.012Z INFO  - 1fb43c0d3289 Extracting 2MB / 58MB
+2025-07-04T22:12:47.505Z INFO  - 1fb43c0d3289 Extracting 6MB / 58MB
+2025-07-04T22:12:47.626Z INFO  - 1fb43c0d3289 Extracting 7MB / 58MB
+2025-07-04T22:12:47.788Z INFO  - 1fb43c0d3289 Extracting 8MB / 58MB
+2025-07-04T22:12:47.918Z INFO  - 1fb43c0d3289 Extracting 9MB / 58MB
+2025-07-04T22:12:48.048Z INFO  - 1fb43c0d3289 Extracting 10MB / 58MB
+2025-07-04T22:12:49.108Z INFO  - 1fb43c0d3289 Extracting 19MB / 58MB
+2025-07-04T22:12:49.479Z INFO  - 1fb43c0d3289 Extracting 21MB / 58MB
+2025-07-04T22:12:50.202Z INFO  - 1fb43c0d3289 Extracting 27MB / 58MB
+2025-07-04T22:12:50.535Z INFO  - 1fb43c0d3289 Extracting 28MB / 58MB
+2025-07-04T22:12:52.143Z INFO  - 1fb43c0d3289 Extracting 35MB / 58MB
+2025-07-04T22:12:52.276Z INFO  - 1fb43c0d3289 Extracting 37MB / 58MB
+2025-07-04T22:12:53.559Z INFO  - 1fb43c0d3289 Extracting 43MB / 58MB
+2025-07-04T22:12:53.991Z INFO  - 1fb43c0d3289 Extracting 44MB / 58MB
+2025-07-04T22:12:54.242Z INFO  - 1fb43c0d3289 Extracting 47MB / 58MB
+2025-07-04T22:12:54.501Z INFO  - 1fb43c0d3289 Extracting 48MB / 58MB
+2025-07-04T22:12:55.990Z INFO  - 1fb43c0d3289 Extracting 51MB / 58MB
+2025-07-04T22:12:56.693Z INFO  - 1fb43c0d3289 Extracting 52MB / 58MB
+2025-07-04T22:12:56.695Z INFO  - 1fb43c0d3289 Extracting 53MB / 58MB
+2025-07-04T22:12:57.078Z INFO  - 1fb43c0d3289 Extracting 55MB / 58MB
+2025-07-04T22:12:57.188Z INFO  - 1fb43c0d3289 Extracting 56MB / 58MB
+2025-07-04T22:12:57.660Z INFO  - 1fb43c0d3289 Extracting 57MB / 58MB
+2025-07-04T22:12:57.832Z INFO  - 1fb43c0d3289 Extracting 57MB / 58MB
+2025-07-04T22:12:58.705Z INFO  - 1fb43c0d3289 Extracting 58MB / 58MB
+2025-07-04T22:12:58.706Z INFO  - 1fb43c0d3289 Pull complete
+2025-07-04T22:12:58.707Z INFO  - ffb2ea2a4f0e Extracting 18KB / 18KB
+2025-07-04T22:12:58.725Z INFO  - ffb2ea2a4f0e Extracting 18KB / 18KB
+2025-07-04T22:12:58.726Z INFO  - ffb2ea2a4f0e Pull complete
+2025-07-04T22:12:58.737Z INFO  -  Digest: sha256:def40f2f939977da2a4db90402d92d631fac9c40c48fed29a48ae743503ef24f
+2025-07-04T22:12:58.745Z INFO  -  Status: Downloaded newer image for aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:12:59.714Z INFO  - Pull Image successful, Time taken: 23 Seconds
+2025-07-04T22:13:01.297Z INFO  - Starting container for site
+2025-07-04T22:13:01.298Z INFO  - docker run -d --expose=8000 --name ai-voice-concierge_0_8d1778a5 -e WEBSITE_USE_DIAGNOSTIC_SERVER=false -e WEBSITES_ENABLE_APP_SERVICE_STORAGE=false -e WEBSITE_SITE_NAME=ai-voice-concierge -e WEBSITE_AUTH_ENABLED=False -e PORT=8000 -e WEBSITE_ROLE_INSTANCE_ID=0 -e WEBSITE_HOSTNAME=ai-voice-concierge.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 -e HTTP_LOGGING_ENABLED=1 aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest REDACTED
+2025-07-04T22:13:03.874Z INFO  - Initiating warmup request to container ai-voice-concierge_0_8d1778a5_msiProxy for site ai-voice-concierge
+2025-07-04T22:13:04.165Z INFO  - Container ai-voice-concierge_0_8d1778a5_msiProxy for site ai-voice-concierge initialized successfully and is ready to serve requests.
+2025-07-04T22:13:04.166Z INFO  - Initiating warmup request to container ai-voice-concierge_0_8d1778a5 for site ai-voice-concierge
+2025-07-04T22:13:16.726Z INFO  - Container ai-voice-concierge_0_8d1778a5 for site ai-voice-concierge initialized successfully and is ready to serve requests.
+2025-07-04T22:13:58.539Z INFO  - Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:13:59.266Z INFO  - latest Pulling from ai-concierge
+2025-07-04T22:13:59.325Z INFO  -  Digest: sha256:def40f2f939977da2a4db90402d92d631fac9c40c48fed29a48ae743503ef24f
+2025-07-04T22:13:59.327Z INFO  -  Status: Image is up to date for aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:13:59.348Z INFO  - Pull Image successful, Time taken: 0 Seconds
+2025-07-04T22:13:59.390Z INFO  - Starting container for site
+2025-07-04T22:13:59.397Z INFO  - docker run -d --expose=8000 --name ai-voice-concierge_1_aca87269 -e WEBSITE_USE_DIAGNOSTIC_SERVER=false -e WEBSITES_ENABLE_APP_SERVICE_STORAGE=false -e WEBSITE_SITE_NAME=ai-voice-concierge -e WEBSITE_AUTH_ENABLED=False -e PORT=8000 -e WEBSITE_ROLE_INSTANCE_ID=0 -e WEBSITE_HOSTNAME=ai-voice-concierge.azurewebsites.net -e WEBSITE_INSTANCE_ID=6eb799316fbaabd74711dbc1accf164a63da6180aac1749e21c76e054fc31708 -e HTTP_LOGGING_ENABLED=1 aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest REDACTED
+2025-07-04T22:14:02.453Z INFO  - Initiating warmup request to container ai-voice-concierge_1_aca87269_msiProxy for site ai-voice-concierge
+2025-07-04T22:14:02.633Z INFO  - Container ai-voice-concierge_1_aca87269_msiProxy for site ai-voice-concierge initialized successfully and is ready to serve requests.
+2025-07-04T22:14:02.634Z INFO  - Initiating warmup request to container ai-voice-concierge_1_aca87269 for site ai-voice-concierge
+2025-07-04T22:14:26.420Z INFO  - Waiting for response to warmup request for container ai-voice-concierge_1_aca87269. Elapsed time = 23.96732 sec
+2025-07-04T22:14:37.072Z INFO  - Container ai-voice-concierge_1_aca87269 for site ai-voice-concierge initialized successfully and is ready to serve requests.
+2025-07-04T22:16:21.7106094Z Container start method called.
+2025-07-04T22:16:21.7110025Z Establishing network.
+2025-07-04T22:16:21.7111824Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:17:17.2164290Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:17:17.2781052Z Container is starting.
+2025-07-04T22:17:17.2862511Z Establishing user namespace if not established already.
+2025-07-04T22:17:17.2867639Z Establishing network if not established already.
+2025-07-04T22:17:17.2873296Z Mounting volumes.
+2025-07-04T22:17:17.3179118Z Nested mountpoint volatile/logs
+2025-07-04T22:17:17.3566421Z Nested mountpoint 
+2025-07-04T22:17:17.4782490Z Creating container.
+2025-07-04T22:17:17.4789732Z Creating pipes for streaming container io.
+2025-07-04T22:17:17.4793559Z Creating stdout named pipe at /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stdout_825a307420f242c3a7383607155e3b85.
+2025-07-04T22:17:17.5076347Z Successfully created stdout named pipe at: /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stdout_825a307420f242c3a7383607155e3b85.
+2025-07-04T22:17:17.5084181Z Opening named pipe /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stdout_825a307420f242c3a7383607155e3b85 for reading in non-blocking mode.
+2025-07-04T22:17:17.5097127Z Successfully opened named pipe: /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stdout_825a307420f242c3a7383607155e3b85.
+2025-07-04T22:17:17.5174336Z Successfully removed non-blocking flag from /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stdout_825a307420f242c3a7383607155e3b85.
+2025-07-04T22:17:17.5183287Z Creating stderr named pipe at /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stderr_e12d34fef9574047891acf710443cf2e.
+2025-07-04T22:17:17.5192233Z Successfully created stderr named pipe at: /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stderr_e12d34fef9574047891acf710443cf2e.
+2025-07-04T22:17:17.5198781Z Opening named pipe /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stderr_e12d34fef9574047891acf710443cf2e for reading in non-blocking mode.
+2025-07-04T22:17:17.5601447Z Successfully opened named pipe: /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stderr_e12d34fef9574047891acf710443cf2e.
+2025-07-04T22:17:17.5786870Z Successfully removed non-blocking flag from /podr/container/pipe/7a5986b8471e_ai-voice-concierge/stderr_e12d34fef9574047891acf710443cf2e.
+2025-07-04T22:17:19.0458967Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:17:19.0557658Z Setting value of PORT variable to 8000
+2025-07-04T22:17:19.0749284Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:17:22.7053312Z Starting container: 7a5986b8471e_ai-voice-concierge.
+2025-07-04T22:17:22.8946841Z Starting watchers and probes.
+2025-07-04T22:17:22.9147572Z Starting metrics collection.
+2025-07-04T22:17:22.9151946Z Container is running.
+2025-07-04T22:17:23.5792037Z Container start method finished after 61858 ms.
+2025-07-04T22:18:02.1051294Z Site startup probe succeeded after 38.210109 seconds.
+2025-07-04T22:18:02.2788806Z Site started.
+2025-07-04T22:24:43.2192552Z Container start method called.
+2025-07-04T22:24:43.2196262Z Establishing network.
+2025-07-04T22:24:43.2200267Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:24:47.3195344Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:24:47.3295843Z Container is starting.
+2025-07-04T22:24:47.3315293Z Establishing user namespace if not established already.
+2025-07-04T22:24:47.3398665Z Establishing network if not established already.
+2025-07-04T22:24:47.3411037Z Mounting volumes.
+2025-07-04T22:24:47.3707822Z Nested mountpoint volatile/logs
+2025-07-04T22:24:47.3902675Z Nested mountpoint 
+2025-07-04T22:24:47.7123599Z Creating container.
+2025-07-04T22:24:47.7510743Z Creating pipes for streaming container io.
+2025-07-04T22:24:47.7534675Z Creating stdout named pipe at /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stdout_a286e4bb532f4ec983bbf5858ab46971.
+2025-07-04T22:24:47.7618890Z Successfully created stdout named pipe at: /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stdout_a286e4bb532f4ec983bbf5858ab46971.
+2025-07-04T22:24:47.7629024Z Opening named pipe /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stdout_a286e4bb532f4ec983bbf5858ab46971 for reading in non-blocking mode.
+2025-07-04T22:24:47.8030101Z Successfully opened named pipe: /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stdout_a286e4bb532f4ec983bbf5858ab46971.
+2025-07-04T22:24:47.8311867Z Successfully removed non-blocking flag from /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stdout_a286e4bb532f4ec983bbf5858ab46971.
+2025-07-04T22:24:47.8329406Z Creating stderr named pipe at /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stderr_96a59ba8aec54d20bafd125186a229d8.
+2025-07-04T22:24:47.8426389Z Successfully created stderr named pipe at: /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stderr_96a59ba8aec54d20bafd125186a229d8.
+2025-07-04T22:24:47.8630621Z Opening named pipe /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stderr_96a59ba8aec54d20bafd125186a229d8 for reading in non-blocking mode.
+2025-07-04T22:24:47.8722157Z Successfully opened named pipe: /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stderr_96a59ba8aec54d20bafd125186a229d8.
+2025-07-04T22:24:47.8735074Z Successfully removed non-blocking flag from /podr/container/pipe/9f8a324d67ab_ai-voice-concierge/stderr_96a59ba8aec54d20bafd125186a229d8.
+2025-07-04T22:24:48.5264403Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:24:48.5545829Z Setting value of PORT variable to 8000
+2025-07-04T22:24:48.5563323Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:24:50.7108768Z Starting container: 9f8a324d67ab_ai-voice-concierge.
+2025-07-04T22:24:51.0329544Z Starting watchers and probes.
+2025-07-04T22:24:51.0339351Z Starting metrics collection.
+2025-07-04T22:24:51.0342466Z Container is running.
+2025-07-04T22:24:51.3136063Z Container start method finished after 8086 ms.
+2025-07-04T22:25:25.6112396Z Site startup probe succeeded after 34.2219375 seconds.
+2025-07-04T22:25:25.7021159Z Site started.
+2025-07-04T22:25:45.7838924Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:25:45.8195538Z Stop and delete container. Retry count = 0
+2025-07-04T22:25:45.8207299Z Stopping container: 7a5986b8471e_ai-voice-concierge.
+2025-07-04T22:25:47.3108336Z Deleting container: 7a5986b8471e_ai-voice-concierge. Retry count = 0
+2025-07-04T22:25:48.0685343Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:25:48.0702958Z Container is terminated. Total time elapsed: 2280 ms.
+2025-07-04T22:25:48.0713965Z Site: ai-voice-concierge stopped.
+2025-07-04T22:29:49.6054535Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:29:49.6261457Z Stop and delete container. Retry count = 0
+2025-07-04T22:29:49.6268102Z Stopping container: 9f8a324d67ab_ai-voice-concierge.
+2025-07-04T22:29:50.7069582Z Deleting container: 9f8a324d67ab_ai-voice-concierge. Retry count = 0
+2025-07-04T22:29:51.6180439Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:29:51.6196045Z Container is terminated. Total time elapsed: 2012 ms.
+2025-07-04T22:29:51.6202902Z Site: ai-voice-concierge stopped.
+2025-07-04T22:31:02.9740390Z Container start method called.
+2025-07-04T22:31:03.0423754Z Establishing network.
+2025-07-04T22:31:03.0428036Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:31:03.9468548Z Container is starting.
+2025-07-04T22:31:03.9545871Z Establishing user namespace if not established already.
+2025-07-04T22:31:03.9553842Z Establishing network if not established already.
+2025-07-04T22:31:03.9560548Z Mounting volumes.
+2025-07-04T22:31:03.9567708Z Nested mountpoint volatile/logs
+2025-07-04T22:31:03.9752017Z Nested mountpoint 
+2025-07-04T22:31:04.0458054Z Creating container.
+2025-07-04T22:31:04.0470857Z Creating pipes for streaming container io.
+2025-07-04T22:31:04.0553804Z Creating stdout named pipe at /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stdout_79f8ea028a5f45f599241f3407f4c03d.
+2025-07-04T22:31:04.0566337Z Successfully created stdout named pipe at: /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stdout_79f8ea028a5f45f599241f3407f4c03d.
+2025-07-04T22:31:04.0574264Z Opening named pipe /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stdout_79f8ea028a5f45f599241f3407f4c03d for reading in non-blocking mode.
+2025-07-04T22:31:04.0660449Z Successfully opened named pipe: /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stdout_79f8ea028a5f45f599241f3407f4c03d.
+2025-07-04T22:31:04.0674039Z Successfully removed non-blocking flag from /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stdout_79f8ea028a5f45f599241f3407f4c03d.
+2025-07-04T22:31:04.0757215Z Creating stderr named pipe at /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stderr_23560cccd1d84fcca5d2adffbad42808.
+2025-07-04T22:31:04.0766000Z Successfully created stderr named pipe at: /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stderr_23560cccd1d84fcca5d2adffbad42808.
+2025-07-04T22:31:04.0771031Z Opening named pipe /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stderr_23560cccd1d84fcca5d2adffbad42808 for reading in non-blocking mode.
+2025-07-04T22:31:04.0776087Z Successfully opened named pipe: /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stderr_23560cccd1d84fcca5d2adffbad42808.
+2025-07-04T22:31:04.0847194Z Successfully removed non-blocking flag from /podr/container/pipe/0b300a7573c2_ai-voice-concierge/stderr_23560cccd1d84fcca5d2adffbad42808.
+2025-07-04T22:31:04.2152436Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:31:04.2155662Z Setting value of PORT variable to 8000
+2025-07-04T22:31:04.2159160Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:31:04.6688609Z Starting container: 0b300a7573c2_ai-voice-concierge.
+2025-07-04T22:31:04.7421673Z Starting watchers and probes.
+2025-07-04T22:31:04.7502946Z Starting metrics collection.
+2025-07-04T22:31:04.7507064Z Container is running.
+2025-07-04T22:31:04.8592961Z Container start method finished after 1865 ms.
+2025-07-04T22:31:20.9377865Z Site startup probe succeeded after 16.0577707 seconds.
+2025-07-04T22:31:21.0193981Z Site started.
+2025-07-04T22:37:48.4469951Z Container start method called.
+2025-07-04T22:37:48.4477128Z Establishing network.
+2025-07-04T22:37:48.4482492Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:38:13.5256906Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:38:13.5258585Z Container is starting.
+2025-07-04T22:38:13.5260908Z Establishing user namespace if not established already.
+2025-07-04T22:38:13.5264223Z Establishing network if not established already.
+2025-07-04T22:38:13.5265886Z Mounting volumes.
+2025-07-04T22:38:13.5270126Z Nested mountpoint volatile/logs
+2025-07-04T22:38:13.6083360Z Nested mountpoint 
+2025-07-04T22:38:13.6991397Z Creating container.
+2025-07-04T22:38:13.7166864Z Creating pipes for streaming container io.
+2025-07-04T22:38:13.7170172Z Creating stdout named pipe at /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stdout_2889c921c78b47e7a6fb5747d7e13c0a.
+2025-07-04T22:38:13.7177411Z Successfully created stdout named pipe at: /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stdout_2889c921c78b47e7a6fb5747d7e13c0a.
+2025-07-04T22:38:13.7178576Z Opening named pipe /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stdout_2889c921c78b47e7a6fb5747d7e13c0a for reading in non-blocking mode.
+2025-07-04T22:38:13.7179775Z Successfully opened named pipe: /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stdout_2889c921c78b47e7a6fb5747d7e13c0a.
+2025-07-04T22:38:13.7180783Z Successfully removed non-blocking flag from /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stdout_2889c921c78b47e7a6fb5747d7e13c0a.
+2025-07-04T22:38:13.7181888Z Creating stderr named pipe at /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stderr_6f2a547e24174206b6f31f3c048d063a.
+2025-07-04T22:38:13.7183276Z Successfully created stderr named pipe at: /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stderr_6f2a547e24174206b6f31f3c048d063a.
+2025-07-04T22:38:13.7184709Z Opening named pipe /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stderr_6f2a547e24174206b6f31f3c048d063a for reading in non-blocking mode.
+2025-07-04T22:38:13.7193988Z Successfully opened named pipe: /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stderr_6f2a547e24174206b6f31f3c048d063a.
+2025-07-04T22:38:13.7195132Z Successfully removed non-blocking flag from /podr/container/pipe/3bf429a687fc_ai-voice-concierge/stderr_6f2a547e24174206b6f31f3c048d063a.
+2025-07-04T22:38:13.9997418Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:38:14.0009527Z Setting value of PORT variable to 8000
+2025-07-04T22:38:14.0080950Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:38:14.6473438Z Starting container: 3bf429a687fc_ai-voice-concierge.
+2025-07-04T22:38:14.7372400Z Starting watchers and probes.
+2025-07-04T22:38:14.7471380Z Starting metrics collection.
+2025-07-04T22:38:14.7549812Z Container is running.
+2025-07-04T22:38:14.9677043Z Container start method finished after 26511 ms.
+2025-07-04T22:38:33.2166489Z Container has finished running with exit code: 1.
+2025-07-04T22:38:33.2251116Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:38:33.2269786Z Stop and delete container. Retry count = 0
+2025-07-04T22:38:33.2348414Z Stopping container: 3bf429a687fc_ai-voice-concierge.
+2025-07-04T22:38:33.2875894Z Deleting container: 3bf429a687fc_ai-voice-concierge. Retry count = 0
+2025-07-04T22:38:34.1977580Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:38:34.2057989Z Container is terminated. Total time elapsed: 973 ms.
+2025-07-04T22:38:34.2069332Z Site container: ai-voice-concierge terminated during site startup.
+2025-07-04T22:38:34.2159577Z Site startup probe failed after 19.1811678 seconds.
+2025-07-04T22:38:34.2724966Z Failed to start site. Revert by stopping site.
+2025-07-04T22:38:34.2916672Z Site: ai-voice-concierge stopped.
+2025-07-04T22:38:56.4241464Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:38:56.4377121Z Stop and delete container. Retry count = 0
+2025-07-04T22:38:56.4381856Z Stopping container: 0b300a7573c2_ai-voice-concierge.
+2025-07-04T22:38:57.5130218Z Deleting container: 0b300a7573c2_ai-voice-concierge. Retry count = 0
+2025-07-04T22:38:58.7361396Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:38:58.7436645Z Container is terminated. Total time elapsed: 2318 ms.
+2025-07-04T22:38:58.7441248Z Site: ai-voice-concierge stopped.
+2025-07-04T22:42:01.6641211Z Container start method called.
+2025-07-04T22:42:01.7245269Z Establishing network.
+2025-07-04T22:42:01.7248813Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:42:33.8420561Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:42:33.8422225Z Container is starting.
+2025-07-04T22:42:33.8422992Z Establishing user namespace if not established already.
+2025-07-04T22:42:33.8423831Z Establishing network if not established already.
+2025-07-04T22:42:33.8433697Z Mounting volumes.
+2025-07-04T22:42:33.8518208Z Nested mountpoint volatile/logs
+2025-07-04T22:42:33.8814080Z Nested mountpoint 
+2025-07-04T22:42:33.9424689Z Creating container.
+2025-07-04T22:42:33.9431130Z Creating pipes for streaming container io.
+2025-07-04T22:42:33.9436136Z Creating stdout named pipe at /podr/container/pipe/ea69cecba929_ai-voice-concierge/stdout_bad63fb1699140ca95103aa099943213.
+2025-07-04T22:42:33.9610271Z Successfully created stdout named pipe at: /podr/container/pipe/ea69cecba929_ai-voice-concierge/stdout_bad63fb1699140ca95103aa099943213.
+2025-07-04T22:42:33.9613143Z Opening named pipe /podr/container/pipe/ea69cecba929_ai-voice-concierge/stdout_bad63fb1699140ca95103aa099943213 for reading in non-blocking mode.
+2025-07-04T22:42:33.9616821Z Successfully opened named pipe: /podr/container/pipe/ea69cecba929_ai-voice-concierge/stdout_bad63fb1699140ca95103aa099943213.
+2025-07-04T22:42:33.9622041Z Successfully removed non-blocking flag from /podr/container/pipe/ea69cecba929_ai-voice-concierge/stdout_bad63fb1699140ca95103aa099943213.
+2025-07-04T22:42:33.9626660Z Creating stderr named pipe at /podr/container/pipe/ea69cecba929_ai-voice-concierge/stderr_9fb5ec0ed2c347a78ff563c8ad7693b7.
+2025-07-04T22:42:33.9630733Z Successfully created stderr named pipe at: /podr/container/pipe/ea69cecba929_ai-voice-concierge/stderr_9fb5ec0ed2c347a78ff563c8ad7693b7.
+2025-07-04T22:42:33.9634166Z Opening named pipe /podr/container/pipe/ea69cecba929_ai-voice-concierge/stderr_9fb5ec0ed2c347a78ff563c8ad7693b7 for reading in non-blocking mode.
+2025-07-04T22:42:33.9637789Z Successfully opened named pipe: /podr/container/pipe/ea69cecba929_ai-voice-concierge/stderr_9fb5ec0ed2c347a78ff563c8ad7693b7.
+2025-07-04T22:42:33.9730092Z Successfully removed non-blocking flag from /podr/container/pipe/ea69cecba929_ai-voice-concierge/stderr_9fb5ec0ed2c347a78ff563c8ad7693b7.
+2025-07-04T22:42:34.1311245Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:42:34.1315404Z Setting value of PORT variable to 8000
+2025-07-04T22:42:34.1323084Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:42:34.5402691Z Starting container: ea69cecba929_ai-voice-concierge.
+2025-07-04T22:42:34.6341564Z Starting watchers and probes.
+2025-07-04T22:42:34.6366372Z Starting metrics collection.
+2025-07-04T22:42:34.6455429Z Container is running.
+2025-07-04T22:42:34.7664112Z Container start method finished after 33100 ms.
+2025-07-04T22:42:48.9274629Z Site startup probe succeeded after 14.1155927 seconds.
+2025-07-04T22:42:49.3403345Z Site started.
+2025-07-04T22:43:27.4137577Z Container start method called.
+2025-07-04T22:43:27.5325351Z Establishing network.
+2025-07-04T22:43:27.5334868Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:43:32.3936884Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:43:32.3952236Z Container is starting.
+2025-07-04T22:43:32.4047769Z Establishing user namespace if not established already.
+2025-07-04T22:43:32.4241461Z Establishing network if not established already.
+2025-07-04T22:43:32.4251116Z Mounting volumes.
+2025-07-04T22:43:32.4259732Z Nested mountpoint volatile/logs
+2025-07-04T22:43:32.4360692Z Nested mountpoint 
+2025-07-04T22:43:32.7760997Z Creating container.
+2025-07-04T22:43:32.7763011Z Creating pipes for streaming container io.
+2025-07-04T22:43:32.7763924Z Creating stdout named pipe at /podr/container/pipe/e395455f7309_ai-voice-concierge/stdout_d420c3d973b44ded96198e3bad336f0f.
+2025-07-04T22:43:32.7765917Z Successfully created stdout named pipe at: /podr/container/pipe/e395455f7309_ai-voice-concierge/stdout_d420c3d973b44ded96198e3bad336f0f.
+2025-07-04T22:43:32.7766634Z Opening named pipe /podr/container/pipe/e395455f7309_ai-voice-concierge/stdout_d420c3d973b44ded96198e3bad336f0f for reading in non-blocking mode.
+2025-07-04T22:43:32.7767723Z Successfully opened named pipe: /podr/container/pipe/e395455f7309_ai-voice-concierge/stdout_d420c3d973b44ded96198e3bad336f0f.
+2025-07-04T22:43:32.7768519Z Successfully removed non-blocking flag from /podr/container/pipe/e395455f7309_ai-voice-concierge/stdout_d420c3d973b44ded96198e3bad336f0f.
+2025-07-04T22:43:32.7769288Z Creating stderr named pipe at /podr/container/pipe/e395455f7309_ai-voice-concierge/stderr_7a5fd94403b74d8786e51c214e25c328.
+2025-07-04T22:43:32.7770412Z Successfully created stderr named pipe at: /podr/container/pipe/e395455f7309_ai-voice-concierge/stderr_7a5fd94403b74d8786e51c214e25c328.
+2025-07-04T22:43:32.7771082Z Opening named pipe /podr/container/pipe/e395455f7309_ai-voice-concierge/stderr_7a5fd94403b74d8786e51c214e25c328 for reading in non-blocking mode.
+2025-07-04T22:43:32.7771912Z Successfully opened named pipe: /podr/container/pipe/e395455f7309_ai-voice-concierge/stderr_7a5fd94403b74d8786e51c214e25c328.
+2025-07-04T22:43:32.7772650Z Successfully removed non-blocking flag from /podr/container/pipe/e395455f7309_ai-voice-concierge/stderr_7a5fd94403b74d8786e51c214e25c328.
+2025-07-04T22:43:33.5301008Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:43:33.5403700Z Setting value of PORT variable to 8000
+2025-07-04T22:43:33.5418539Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:43:36.1240718Z Starting container: e395455f7309_ai-voice-concierge.
+2025-07-04T22:43:36.4822387Z Starting watchers and probes.
+2025-07-04T22:43:36.5031505Z Starting metrics collection.
+2025-07-04T22:43:36.5037151Z Container is running.
+2025-07-04T22:43:36.6639738Z Container start method finished after 9249 ms.
+2025-07-04T22:44:05.1983037Z Site startup probe succeeded after 28.3926789 seconds.
+2025-07-04T22:44:05.4214197Z Site started.
+2025-07-04T22:44:25.8184798Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:44:25.8376943Z Stop and delete container. Retry count = 0
+2025-07-04T22:44:25.8383444Z Stopping container: ea69cecba929_ai-voice-concierge.
+2025-07-04T22:44:26.9295006Z Deleting container: ea69cecba929_ai-voice-concierge. Retry count = 0
+2025-07-04T22:44:27.8279241Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:44:27.8333908Z Container is terminated. Total time elapsed: 2013 ms.
+2025-07-04T22:44:27.8334425Z Site: ai-voice-concierge stopped.
+2025-07-04T22:56:59.3272467Z Container start method called.
+2025-07-04T22:56:59.3275623Z Establishing network.
+2025-07-04T22:56:59.3278196Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T22:57:06.4729363Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T22:57:06.4730594Z Container is starting.
+2025-07-04T22:57:06.4731283Z Establishing user namespace if not established already.
+2025-07-04T22:57:06.4732086Z Establishing network if not established already.
+2025-07-04T22:57:06.4733012Z Mounting volumes.
+2025-07-04T22:57:06.4734317Z Nested mountpoint volatile/logs
+2025-07-04T22:57:06.5619246Z Nested mountpoint 
+2025-07-04T22:57:07.1960993Z Creating container.
+2025-07-04T22:57:07.3153156Z Creating pipes for streaming container io.
+2025-07-04T22:57:07.3162893Z Creating stdout named pipe at /podr/container/pipe/473bbab0d098_ai-voice-concierge/stdout_3769c92e24654a5cafe4e8171fdf4f1d.
+2025-07-04T22:57:07.3170902Z Successfully created stdout named pipe at: /podr/container/pipe/473bbab0d098_ai-voice-concierge/stdout_3769c92e24654a5cafe4e8171fdf4f1d.
+2025-07-04T22:57:07.3245901Z Opening named pipe /podr/container/pipe/473bbab0d098_ai-voice-concierge/stdout_3769c92e24654a5cafe4e8171fdf4f1d for reading in non-blocking mode.
+2025-07-04T22:57:07.3249157Z Successfully opened named pipe: /podr/container/pipe/473bbab0d098_ai-voice-concierge/stdout_3769c92e24654a5cafe4e8171fdf4f1d.
+2025-07-04T22:57:07.3251513Z Successfully removed non-blocking flag from /podr/container/pipe/473bbab0d098_ai-voice-concierge/stdout_3769c92e24654a5cafe4e8171fdf4f1d.
+2025-07-04T22:57:07.3265805Z Creating stderr named pipe at /podr/container/pipe/473bbab0d098_ai-voice-concierge/stderr_3c65eb5d7ab84ee8b306369a320d84c4.
+2025-07-04T22:57:07.3271522Z Successfully created stderr named pipe at: /podr/container/pipe/473bbab0d098_ai-voice-concierge/stderr_3c65eb5d7ab84ee8b306369a320d84c4.
+2025-07-04T22:57:07.3661505Z Opening named pipe /podr/container/pipe/473bbab0d098_ai-voice-concierge/stderr_3c65eb5d7ab84ee8b306369a320d84c4 for reading in non-blocking mode.
+2025-07-04T22:57:07.3963794Z Successfully opened named pipe: /podr/container/pipe/473bbab0d098_ai-voice-concierge/stderr_3c65eb5d7ab84ee8b306369a320d84c4.
+2025-07-04T22:57:07.4379293Z Successfully removed non-blocking flag from /podr/container/pipe/473bbab0d098_ai-voice-concierge/stderr_3c65eb5d7ab84ee8b306369a320d84c4.
+2025-07-04T22:57:08.2498173Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T22:57:08.2713059Z Setting value of PORT variable to 8000
+2025-07-04T22:57:08.3004665Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T22:57:10.6247469Z Starting container: 473bbab0d098_ai-voice-concierge.
+2025-07-04T22:57:11.1083769Z Starting watchers and probes.
+2025-07-04T22:57:11.1091423Z Starting metrics collection.
+2025-07-04T22:57:11.1164485Z Container is running.
+2025-07-04T22:57:12.4942549Z Container start method finished after 13166 ms.
+2025-07-04T22:57:58.2566172Z Site startup probe succeeded after 45.6389356 seconds.
+2025-07-04T22:57:58.4797963Z Site started.
+2025-07-04T22:58:18.5484842Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T22:58:18.5678749Z Stop and delete container. Retry count = 0
+2025-07-04T22:58:18.5706196Z Stopping container: e395455f7309_ai-voice-concierge.
+2025-07-04T22:58:19.7411887Z Deleting container: e395455f7309_ai-voice-concierge. Retry count = 0
+2025-07-04T22:58:20.5420420Z Container spec TerminationMessagePolicy  path 
+2025-07-04T22:58:20.5510602Z Container is terminated. Total time elapsed: 2001 ms.
+2025-07-04T22:58:20.5517445Z Site: ai-voice-concierge stopped.
+2025-07-04T23:01:38.4467508Z Container start method called.
+2025-07-04T23:01:38.4476314Z Establishing network.
+2025-07-04T23:01:38.4558909Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:01:42.8374206Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:01:42.8385388Z Container is starting.
+2025-07-04T23:01:42.8463035Z Establishing user namespace if not established already.
+2025-07-04T23:01:42.8490147Z Establishing network if not established already.
+2025-07-04T23:01:42.8570093Z Mounting volumes.
+2025-07-04T23:01:42.8585100Z Nested mountpoint volatile/logs
+2025-07-04T23:01:42.9385329Z Nested mountpoint 
+2025-07-04T23:01:43.3006183Z Creating container.
+2025-07-04T23:01:43.3009865Z Creating pipes for streaming container io.
+2025-07-04T23:01:43.3013362Z Creating stdout named pipe at /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stdout_90866c866ca14316ae88f971a633debd.
+2025-07-04T23:01:43.3018086Z Successfully created stdout named pipe at: /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stdout_90866c866ca14316ae88f971a633debd.
+2025-07-04T23:01:43.4398186Z Opening named pipe /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stdout_90866c866ca14316ae88f971a633debd for reading in non-blocking mode.
+2025-07-04T23:01:43.4415317Z Successfully opened named pipe: /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stdout_90866c866ca14316ae88f971a633debd.
+2025-07-04T23:01:43.4806775Z Successfully removed non-blocking flag from /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stdout_90866c866ca14316ae88f971a633debd.
+2025-07-04T23:01:43.5215319Z Creating stderr named pipe at /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stderr_0a60fabce9b444b394cb3b04a4ded0df.
+2025-07-04T23:01:43.5405971Z Successfully created stderr named pipe at: /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stderr_0a60fabce9b444b394cb3b04a4ded0df.
+2025-07-04T23:01:43.5419224Z Opening named pipe /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stderr_0a60fabce9b444b394cb3b04a4ded0df for reading in non-blocking mode.
+2025-07-04T23:01:43.5428428Z Successfully opened named pipe: /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stderr_0a60fabce9b444b394cb3b04a4ded0df.
+2025-07-04T23:01:43.5609283Z Successfully removed non-blocking flag from /podr/container/pipe/f9f1784f29d3_ai-voice-concierge/stderr_0a60fabce9b444b394cb3b04a4ded0df.
+2025-07-04T23:01:44.6978094Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:01:44.6979169Z Setting value of PORT variable to 8000
+2025-07-04T23:01:44.6980664Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:01:47.0614538Z Starting container: f9f1784f29d3_ai-voice-concierge.
+2025-07-04T23:01:47.2422631Z Starting watchers and probes.
+2025-07-04T23:01:47.2426199Z Starting metrics collection.
+2025-07-04T23:01:47.3228402Z Container is running.
+2025-07-04T23:01:48.0528581Z Container start method finished after 9605 ms.
+2025-07-04T23:02:20.4447813Z Site startup probe succeeded after 32.293245 seconds.
+2025-07-04T23:02:21.8424782Z Site started.
+2025-07-04T23:02:42.8179841Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:02:42.8462614Z Stop and delete container. Retry count = 0
+2025-07-04T23:02:42.8468880Z Stopping container: 473bbab0d098_ai-voice-concierge.
+2025-07-04T23:02:44.8893362Z Deleting container: 473bbab0d098_ai-voice-concierge. Retry count = 0
+2025-07-04T23:02:45.2893468Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:02:45.2942259Z Container is terminated. Total time elapsed: 2471 ms.
+2025-07-04T23:02:45.2947857Z Site: ai-voice-concierge stopped.
+2025-07-04T23:07:10.6689361Z Container start method called.
+2025-07-04T23:07:10.6875097Z Establishing network.
+2025-07-04T23:07:10.6877862Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:07:16.1042842Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:07:16.1056165Z Container is starting.
+2025-07-04T23:07:16.1062095Z Establishing user namespace if not established already.
+2025-07-04T23:07:16.1247463Z Establishing network if not established already.
+2025-07-04T23:07:16.1440494Z Mounting volumes.
+2025-07-04T23:07:16.1451720Z Nested mountpoint volatile/logs
+2025-07-04T23:07:16.1634615Z Nested mountpoint 
+2025-07-04T23:07:16.2669230Z Creating container.
+2025-07-04T23:07:16.2860649Z Creating pipes for streaming container io.
+2025-07-04T23:07:16.2862445Z Creating stdout named pipe at /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stdout_5e729d5f5ea54b24af41ec66b40dbf40.
+2025-07-04T23:07:16.2868722Z Successfully created stdout named pipe at: /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stdout_5e729d5f5ea54b24af41ec66b40dbf40.
+2025-07-04T23:07:16.2870159Z Opening named pipe /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stdout_5e729d5f5ea54b24af41ec66b40dbf40 for reading in non-blocking mode.
+2025-07-04T23:07:16.2871422Z Successfully opened named pipe: /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stdout_5e729d5f5ea54b24af41ec66b40dbf40.
+2025-07-04T23:07:16.2872419Z Successfully removed non-blocking flag from /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stdout_5e729d5f5ea54b24af41ec66b40dbf40.
+2025-07-04T23:07:16.3267899Z Creating stderr named pipe at /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stderr_4cf0d3970cee48f6ac1daf50d340af6e.
+2025-07-04T23:07:16.3346616Z Successfully created stderr named pipe at: /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stderr_4cf0d3970cee48f6ac1daf50d340af6e.
+2025-07-04T23:07:16.3353008Z Opening named pipe /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stderr_4cf0d3970cee48f6ac1daf50d340af6e for reading in non-blocking mode.
+2025-07-04T23:07:16.3371088Z Successfully opened named pipe: /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stderr_4cf0d3970cee48f6ac1daf50d340af6e.
+2025-07-04T23:07:16.3559491Z Successfully removed non-blocking flag from /podr/container/pipe/6f48a7d26b30_ai-voice-concierge/stderr_4cf0d3970cee48f6ac1daf50d340af6e.
+2025-07-04T23:07:17.8143398Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:07:17.8147337Z Setting value of PORT variable to 8000
+2025-07-04T23:07:17.8149980Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:07:20.2200777Z Starting container: 6f48a7d26b30_ai-voice-concierge.
+2025-07-04T23:07:20.6616969Z Starting watchers and probes.
+2025-07-04T23:07:20.6812504Z Starting metrics collection.
+2025-07-04T23:07:20.7129653Z Container is running.
+2025-07-04T23:07:20.8522761Z Container start method finished after 10164 ms.
+2025-07-04T23:07:59.0129298Z Site startup probe succeeded after 38.0685197 seconds.
+2025-07-04T23:07:59.1698070Z Site started.
+2025-07-04T23:08:19.2471631Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:08:19.2679022Z Stop and delete container. Retry count = 0
+2025-07-04T23:08:19.2690432Z Stopping container: f9f1784f29d3_ai-voice-concierge.
+2025-07-04T23:08:20.3236874Z Deleting container: f9f1784f29d3_ai-voice-concierge. Retry count = 0
+2025-07-04T23:08:21.0029942Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:08:21.0052902Z Container is terminated. Total time elapsed: 1756 ms.
+2025-07-04T23:08:21.0063528Z Site: ai-voice-concierge stopped.
+2025-07-04T23:09:02.6672715Z Container start method called.
+2025-07-04T23:09:02.6674363Z Establishing network.
+2025-07-04T23:09:02.6678141Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:09:05.7841154Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:09:05.7849843Z Container is starting.
+2025-07-04T23:09:05.7859844Z Establishing user namespace if not established already.
+2025-07-04T23:09:05.8258877Z Establishing network if not established already.
+2025-07-04T23:09:05.8451171Z Mounting volumes.
+2025-07-04T23:09:05.8458540Z Nested mountpoint volatile/logs
+2025-07-04T23:09:05.8556608Z Nested mountpoint 
+2025-07-04T23:09:05.9950912Z Creating container.
+2025-07-04T23:09:06.0260259Z Creating pipes for streaming container io.
+2025-07-04T23:09:06.0275711Z Creating stdout named pipe at /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stdout_7964c9fe119e4d44857ae562cfb8a41e.
+2025-07-04T23:09:06.0950446Z Successfully created stdout named pipe at: /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stdout_7964c9fe119e4d44857ae562cfb8a41e.
+2025-07-04T23:09:06.0968976Z Opening named pipe /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stdout_7964c9fe119e4d44857ae562cfb8a41e for reading in non-blocking mode.
+2025-07-04T23:09:06.0982677Z Successfully opened named pipe: /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stdout_7964c9fe119e4d44857ae562cfb8a41e.
+2025-07-04T23:09:06.1064473Z Successfully removed non-blocking flag from /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stdout_7964c9fe119e4d44857ae562cfb8a41e.
+2025-07-04T23:09:06.1080610Z Creating stderr named pipe at /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stderr_d13895aeea4949f48dad67dab8f31774.
+2025-07-04T23:09:06.1159624Z Successfully created stderr named pipe at: /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stderr_d13895aeea4949f48dad67dab8f31774.
+2025-07-04T23:09:06.1169977Z Opening named pipe /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stderr_d13895aeea4949f48dad67dab8f31774 for reading in non-blocking mode.
+2025-07-04T23:09:06.1180727Z Successfully opened named pipe: /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stderr_d13895aeea4949f48dad67dab8f31774.
+2025-07-04T23:09:06.1375088Z Successfully removed non-blocking flag from /podr/container/pipe/72dd8ca8e900_ai-voice-concierge/stderr_d13895aeea4949f48dad67dab8f31774.
+2025-07-04T23:09:06.5173271Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:09:06.5190871Z Setting value of PORT variable to 8000
+2025-07-04T23:09:06.5279274Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:09:09.1690783Z Starting container: 72dd8ca8e900_ai-voice-concierge.
+2025-07-04T23:09:09.3782094Z Starting watchers and probes.
+2025-07-04T23:09:09.3990019Z Starting metrics collection.
+2025-07-04T23:09:09.3997123Z Container is running.
+2025-07-04T23:09:09.4806808Z Container start method finished after 6812 ms.
+2025-07-04T23:09:33.2208577Z Site startup probe succeeded after 23.631098 seconds.
+2025-07-04T23:09:33.3525853Z Site started.
+2025-07-04T23:09:53.4511113Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:09:53.4761355Z Stop and delete container. Retry count = 0
+2025-07-04T23:09:53.4769640Z Stopping container: 6f48a7d26b30_ai-voice-concierge.
+2025-07-04T23:09:54.5676761Z Deleting container: 6f48a7d26b30_ai-voice-concierge. Retry count = 0
+2025-07-04T23:09:55.4207572Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:09:55.4267420Z Container is terminated. Total time elapsed: 1970 ms.
+2025-07-04T23:09:55.4273034Z Site: ai-voice-concierge stopped.
+2025-07-04T23:10:48.5822489Z Container start method called.
+2025-07-04T23:10:48.5827903Z Establishing network.
+2025-07-04T23:10:48.5905313Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:11:09.5463075Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:11:09.5468306Z Container is starting.
+2025-07-04T23:11:09.5473843Z Establishing user namespace if not established already.
+2025-07-04T23:11:09.5565040Z Establishing network if not established already.
+2025-07-04T23:11:09.5570695Z Mounting volumes.
+2025-07-04T23:11:09.5576559Z Nested mountpoint volatile/logs
+2025-07-04T23:11:09.5686158Z Nested mountpoint 
+2025-07-04T23:11:09.9316161Z Creating container.
+2025-07-04T23:11:09.9318776Z Creating pipes for streaming container io.
+2025-07-04T23:11:09.9319914Z Creating stdout named pipe at /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stdout_0c67ec9033bc4735ae7e2d51b56c909b.
+2025-07-04T23:11:09.9322040Z Successfully created stdout named pipe at: /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stdout_0c67ec9033bc4735ae7e2d51b56c909b.
+2025-07-04T23:11:09.9323086Z Opening named pipe /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stdout_0c67ec9033bc4735ae7e2d51b56c909b for reading in non-blocking mode.
+2025-07-04T23:11:09.9326095Z Successfully opened named pipe: /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stdout_0c67ec9033bc4735ae7e2d51b56c909b.
+2025-07-04T23:11:09.9327380Z Successfully removed non-blocking flag from /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stdout_0c67ec9033bc4735ae7e2d51b56c909b.
+2025-07-04T23:11:09.9328446Z Creating stderr named pipe at /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stderr_cc4b5aff86cd48299c522f199f1d5fff.
+2025-07-04T23:11:09.9329857Z Successfully created stderr named pipe at: /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stderr_cc4b5aff86cd48299c522f199f1d5fff.
+2025-07-04T23:11:09.9330885Z Opening named pipe /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stderr_cc4b5aff86cd48299c522f199f1d5fff for reading in non-blocking mode.
+2025-07-04T23:11:09.9332024Z Successfully opened named pipe: /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stderr_cc4b5aff86cd48299c522f199f1d5fff.
+2025-07-04T23:11:09.9335946Z Successfully removed non-blocking flag from /podr/container/pipe/1b14fdc36951_ai-voice-concierge/stderr_cc4b5aff86cd48299c522f199f1d5fff.
+2025-07-04T23:11:10.2372259Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:11:10.2378743Z Setting value of PORT variable to 8000
+2025-07-04T23:11:10.2425726Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:11:11.5002558Z Starting container: 1b14fdc36951_ai-voice-concierge.
+2025-07-04T23:11:11.5734326Z Starting watchers and probes.
+2025-07-04T23:11:11.5740680Z Starting metrics collection.
+2025-07-04T23:11:11.5745365Z Container is running.
+2025-07-04T23:11:11.6960160Z Container start method finished after 23113 ms.
+2025-07-04T23:11:31.9256980Z Site startup probe succeeded after 20.1500632 seconds.
+2025-07-04T23:11:32.1285113Z Site started.
+2025-07-04T23:11:52.1854204Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:11:52.2058082Z Stop and delete container. Retry count = 0
+2025-07-04T23:11:52.2126242Z Stopping container: 72dd8ca8e900_ai-voice-concierge.
+2025-07-04T23:11:53.7087033Z Deleting container: 72dd8ca8e900_ai-voice-concierge. Retry count = 0
+2025-07-04T23:11:54.3043683Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:11:54.3056189Z Container is terminated. Total time elapsed: 2119 ms.
+2025-07-04T23:11:54.3063107Z Site: ai-voice-concierge stopped.
+2025-07-04T23:18:00.1625103Z Container start method called.
+2025-07-04T23:18:00.1717887Z Establishing network.
+2025-07-04T23:18:00.1721838Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:18:03.2995123Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:18:03.3012494Z Container is starting.
+2025-07-04T23:18:03.3015448Z Establishing user namespace if not established already.
+2025-07-04T23:18:03.3020973Z Establishing network if not established already.
+2025-07-04T23:18:03.3098985Z Mounting volumes.
+2025-07-04T23:18:03.3102209Z Nested mountpoint volatile/logs
+2025-07-04T23:18:03.3210967Z Nested mountpoint 
+2025-07-04T23:18:03.4823796Z Creating container.
+2025-07-04T23:18:03.4825565Z Creating pipes for streaming container io.
+2025-07-04T23:18:03.4826603Z Creating stdout named pipe at /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stdout_f05d4a87f2c24bd3ac18969df587b805.
+2025-07-04T23:18:03.4828679Z Successfully created stdout named pipe at: /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stdout_f05d4a87f2c24bd3ac18969df587b805.
+2025-07-04T23:18:03.5208069Z Opening named pipe /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stdout_f05d4a87f2c24bd3ac18969df587b805 for reading in non-blocking mode.
+2025-07-04T23:18:03.5227004Z Successfully opened named pipe: /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stdout_f05d4a87f2c24bd3ac18969df587b805.
+2025-07-04T23:18:03.5229221Z Successfully removed non-blocking flag from /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stdout_f05d4a87f2c24bd3ac18969df587b805.
+2025-07-04T23:18:03.5231811Z Creating stderr named pipe at /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stderr_78d3e24c759a4b86bdc395b3adbcfb3e.
+2025-07-04T23:18:03.6515952Z Successfully created stderr named pipe at: /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stderr_78d3e24c759a4b86bdc395b3adbcfb3e.
+2025-07-04T23:18:03.6521721Z Opening named pipe /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stderr_78d3e24c759a4b86bdc395b3adbcfb3e for reading in non-blocking mode.
+2025-07-04T23:18:03.6525763Z Successfully opened named pipe: /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stderr_78d3e24c759a4b86bdc395b3adbcfb3e.
+2025-07-04T23:18:03.6528023Z Successfully removed non-blocking flag from /podr/container/pipe/db2e34e8812c_ai-voice-concierge/stderr_78d3e24c759a4b86bdc395b3adbcfb3e.
+2025-07-04T23:18:04.3267387Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:18:04.3350316Z Setting value of PORT variable to 8000
+2025-07-04T23:18:04.3352837Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:18:06.4757808Z Starting container: db2e34e8812c_ai-voice-concierge.
+2025-07-04T23:18:06.8241436Z Starting watchers and probes.
+2025-07-04T23:18:06.8474963Z Starting metrics collection.
+2025-07-04T23:18:06.8956018Z Container is running.
+2025-07-04T23:18:07.0768791Z Container start method finished after 6885 ms.
+2025-07-04T23:18:29.1876160Z Site startup probe succeeded after 21.9584971 seconds.
+2025-07-04T23:18:29.2481563Z Site started.
+2025-07-04T23:18:49.3888592Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:18:49.4075396Z Stop and delete container. Retry count = 0
+2025-07-04T23:18:49.4083110Z Stopping container: 1b14fdc36951_ai-voice-concierge.
+2025-07-04T23:18:50.4994580Z Deleting container: 1b14fdc36951_ai-voice-concierge. Retry count = 0
+2025-07-04T23:18:51.5278384Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:18:51.5474227Z Container is terminated. Total time elapsed: 2140 ms.
+2025-07-04T23:18:51.5579574Z Site: ai-voice-concierge stopped.
+2025-07-04T23:22:03.1719682Z Container start method called.
+2025-07-04T23:22:03.1725148Z Establishing network.
+2025-07-04T23:22:03.1797717Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:22:07.1977292Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:22:07.2088600Z Container is starting.
+2025-07-04T23:22:07.2188244Z Establishing user namespace if not established already.
+2025-07-04T23:22:07.2198695Z Establishing network if not established already.
+2025-07-04T23:22:07.2602936Z Mounting volumes.
+2025-07-04T23:22:07.2684211Z Nested mountpoint volatile/logs
+2025-07-04T23:22:07.2780726Z Nested mountpoint 
+2025-07-04T23:22:07.5112056Z Creating container.
+2025-07-04T23:22:07.5193331Z Creating pipes for streaming container io.
+2025-07-04T23:22:07.5204268Z Creating stdout named pipe at /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stdout_5e7d474df11c4a6ab23405d8ee9a4c3c.
+2025-07-04T23:22:07.5221462Z Successfully created stdout named pipe at: /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stdout_5e7d474df11c4a6ab23405d8ee9a4c3c.
+2025-07-04T23:22:07.5909257Z Opening named pipe /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stdout_5e7d474df11c4a6ab23405d8ee9a4c3c for reading in non-blocking mode.
+2025-07-04T23:22:07.6513425Z Successfully opened named pipe: /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stdout_5e7d474df11c4a6ab23405d8ee9a4c3c.
+2025-07-04T23:22:07.6524320Z Successfully removed non-blocking flag from /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stdout_5e7d474df11c4a6ab23405d8ee9a4c3c.
+2025-07-04T23:22:07.6909368Z Creating stderr named pipe at /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stderr_84492f98e2084ba69c9701147149cf5a.
+2025-07-04T23:22:07.6919444Z Successfully created stderr named pipe at: /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stderr_84492f98e2084ba69c9701147149cf5a.
+2025-07-04T23:22:07.6929875Z Opening named pipe /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stderr_84492f98e2084ba69c9701147149cf5a for reading in non-blocking mode.
+2025-07-04T23:22:07.7009907Z Successfully opened named pipe: /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stderr_84492f98e2084ba69c9701147149cf5a.
+2025-07-04T23:22:07.7018144Z Successfully removed non-blocking flag from /podr/container/pipe/c54fd92a2ddc_ai-voice-concierge/stderr_84492f98e2084ba69c9701147149cf5a.
+2025-07-04T23:22:08.4563004Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:22:08.5771799Z Setting value of PORT variable to 8000
+2025-07-04T23:22:08.5780158Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:22:12.1599907Z Starting container: c54fd92a2ddc_ai-voice-concierge.
+2025-07-04T23:22:12.3314442Z Starting watchers and probes.
+2025-07-04T23:22:12.3509154Z Starting metrics collection.
+2025-07-04T23:22:12.3597800Z Container is running.
+2025-07-04T23:22:12.7118244Z Container start method finished after 9498 ms.
+2025-07-04T23:22:59.7920270Z Site startup probe succeeded after 47.0700248 seconds.
+2025-07-04T23:22:59.8927024Z Site started.
+2025-07-04T23:23:19.9770534Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:23:19.9969392Z Stop and delete container. Retry count = 0
+2025-07-04T23:23:19.9976214Z Stopping container: db2e34e8812c_ai-voice-concierge.
+2025-07-04T23:23:20.9949597Z Deleting container: db2e34e8812c_ai-voice-concierge. Retry count = 0
+2025-07-04T23:23:21.7139451Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:23:21.7151020Z Container is terminated. Total time elapsed: 1736 ms.
+2025-07-04T23:23:21.7157517Z Site: ai-voice-concierge stopped.
+2025-07-04T23:26:07.0574852Z Container start method called.
+2025-07-04T23:26:07.0576688Z Establishing network.
+2025-07-04T23:26:07.0577700Z Pulling image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest.
+2025-07-04T23:26:12.3144651Z Image aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest is pulled from registry aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io
+2025-07-04T23:26:12.3244750Z Container is starting.
+2025-07-04T23:26:12.3347515Z Establishing user namespace if not established already.
+2025-07-04T23:26:12.3430195Z Establishing network if not established already.
+2025-07-04T23:26:12.3442665Z Mounting volumes.
+2025-07-04T23:26:12.3451343Z Nested mountpoint volatile/logs
+2025-07-04T23:26:12.6056494Z Nested mountpoint 
+2025-07-04T23:26:12.8148363Z Creating container.
+2025-07-04T23:26:12.8762151Z Creating pipes for streaming container io.
+2025-07-04T23:26:12.8776260Z Creating stdout named pipe at /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stdout_06a71a3154e84b04be6af4ebb8ac499d.
+2025-07-04T23:26:12.8852158Z Successfully created stdout named pipe at: /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stdout_06a71a3154e84b04be6af4ebb8ac499d.
+2025-07-04T23:26:12.8857628Z Opening named pipe /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stdout_06a71a3154e84b04be6af4ebb8ac499d for reading in non-blocking mode.
+2025-07-04T23:26:12.8859305Z Successfully opened named pipe: /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stdout_06a71a3154e84b04be6af4ebb8ac499d.
+2025-07-04T23:26:12.8860160Z Successfully removed non-blocking flag from /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stdout_06a71a3154e84b04be6af4ebb8ac499d.
+2025-07-04T23:26:12.8860950Z Creating stderr named pipe at /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stderr_de7ec9ddc05a40f88c8e9542c02d2a96.
+2025-07-04T23:26:12.8970282Z Successfully created stderr named pipe at: /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stderr_de7ec9ddc05a40f88c8e9542c02d2a96.
+2025-07-04T23:26:12.8971204Z Opening named pipe /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stderr_de7ec9ddc05a40f88c8e9542c02d2a96 for reading in non-blocking mode.
+2025-07-04T23:26:12.8972170Z Successfully opened named pipe: /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stderr_de7ec9ddc05a40f88c8e9542c02d2a96.
+2025-07-04T23:26:12.8972980Z Successfully removed non-blocking flag from /podr/container/pipe/07dbc462e3d3_ai-voice-concierge/stderr_de7ec9ddc05a40f88c8e9542c02d2a96.
+2025-07-04T23:26:15.4362213Z Container image exposes ports: 8000. Resolved main port to 8000.
+2025-07-04T23:26:15.4556723Z Setting value of PORT variable to 8000
+2025-07-04T23:26:15.4571329Z Creating container with image: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest from registry: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io and fully qualified image name: aiconciergeregistry-eta2akbcfvfqfycd.azurecr.io/ai-concierge:latest
+2025-07-04T23:26:16.5412432Z Starting container: 07dbc462e3d3_ai-voice-concierge.
+2025-07-04T23:26:16.6905176Z Starting watchers and probes.
+2025-07-04T23:26:16.6922641Z Starting metrics collection.
+2025-07-04T23:26:16.7023176Z Container is running.
+2025-07-04T23:26:16.7917911Z Container start method finished after 9694 ms.
+2025-07-04T23:26:36.3239848Z Site startup probe succeeded after 19.419334 seconds.
+2025-07-04T23:26:36.4329628Z Site started.
+2025-07-04T23:26:56.5027945Z Container is terminating. Grace period: 5 seconds.
+2025-07-04T23:26:56.5224201Z Stop and delete container. Retry count = 0
+2025-07-04T23:26:56.5238152Z Stopping container: c54fd92a2ddc_ai-voice-concierge.
+2025-07-04T23:26:57.7113459Z Deleting container: c54fd92a2ddc_ai-voice-concierge. Retry count = 0
+2025-07-04T23:26:58.4980827Z Container spec TerminationMessagePolicy  path 
+2025-07-04T23:26:58.5023754Z Container is terminated. Total time elapsed: 1995 ms.
+2025-07-04T23:26:58.5028514Z Site: ai-voice-concierge stopped.
