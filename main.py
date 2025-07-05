@@ -27,6 +27,7 @@ import uuid
 import logging
 from fastapi.staticfiles import StaticFiles
 import time
+import asyncio
 
 # Initialize FastAPI application
 app = FastAPI(title="AI Voice Concierge", description="AI-powered phone call screening system")
@@ -44,6 +45,17 @@ sessions = {}
 def startup_event():
     """Initialize database tables on application startup"""
     init_db()
+
+# Add async startup event for DB connectivity check
+@app.on_event("startup")
+async def async_startup_event():
+    try:
+        # Use the test_database endpoint logic directly
+        # This will catch DB issues at startup
+        await test_database()
+        logging.info("Database connectivity check at startup: SUCCESS")
+    except Exception as e:
+        logging.error(f"Database connectivity check at startup: FAILED - {e}")
 
 @app.get("/")
 async def root():
