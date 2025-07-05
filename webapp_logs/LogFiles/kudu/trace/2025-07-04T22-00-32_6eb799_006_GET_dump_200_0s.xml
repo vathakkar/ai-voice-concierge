@@ -1,0 +1,4 @@
+<step title="Incoming Request" date="2025-07-04T22:00:32.025" instance="6eb799" url="/dump" method="GET" type="request" pid="768,1,16" Host="ai-voice-concierge.scm.azurewebsites.net" User-Agent="AZURECLI/2.74.0 (HOMEBREW)" Accept-Encoding="identity" Authorization="Bas..." x-ms-client-request-id="4c269e40-5922-11f0-9053-1ad9e62c31fd" X-ARR-LOG-ID="4c269e40-5922-11f0-9053-1ad9e62c31fd" CLIENT-IP="104.156.98.100:58201" X-SITE-DEPLOYMENT-ID="ai-voice-concierge" WAS-DEFAULT-HOSTNAME="ai-voice-concierge.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/dump" X-Client-IP="104.156.98.100" X-Client-Port="58201" >
+  <step title="Cleanup Xml Logs" date="2025-07-04T22:00:32.030" /><!-- duration: 10ms -->
+  <step title="Outgoing response" date="2025-07-04T22:00:32.417" type="response" statusCode="200" statusText="OK" /><!-- duration: 9ms -->
+</step><!-- duration: 404ms -->

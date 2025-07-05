@@ -1,0 +1,5 @@
+<step title="Incoming Request" date="2025-07-04T22:20:33.694" instance="6eb799" url="/logstream" method="GET" type="request" pid="767,1,5" Host="ai-voice-concierge.scm.azurewebsites.net" User-Agent="AZURECLI/2.74.0 (HOMEBREW)" Accept-Encoding="identity" Authorization="Bas..." x-ms-client-request-id="073b96ca-5925-11f0-8dcd-1ad9e62c31fd" X-ARR-LOG-ID="073b96ca-5925-11f0-8dcd-1ad9e62c31fd" CLIENT-IP="104.156.98.100:59311" X-SITE-DEPLOYMENT-ID="ai-voice-concierge" WAS-DEFAULT-HOSTNAME="ai-voice-concierge.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/logstream" X-Client-IP="104.156.98.100" X-Client-Port="59311" >
+  <step title="LogStreamHandlerMiddleware.Invoke" date="2025-07-04T22:20:33.733" /><!-- duration: 148ms -->
+  <step title="Error occurred" date="2025-07-04T22:21:33.883" type="error" text="LogStreamManager: ProcessRequest end" /><!-- duration: 28ms -->
+  <step title="Outgoing response" date="2025-07-04T22:21:33.926" type="response" statusCode="200" statusText="OK" /><!-- duration: 8ms -->
+</step><!-- duration: 60242ms -->

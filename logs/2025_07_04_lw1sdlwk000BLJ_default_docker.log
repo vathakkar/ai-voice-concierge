@@ -1,0 +1,48 @@
+2025-07-04T22:18:01.7065278Z INFO:     Started server process [1]
+2025-07-04T22:18:01.7069916Z INFO:     Waiting for application startup.
+2025-07-04T22:18:01.7288494Z INFO:     Application startup complete.
+2025-07-04T22:18:01.7561959Z INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-07-04T22:18:01.9384938Z INFO:     169.254.131.1:23265 - "GET /robots933456.txt HTTP/1.1" 404 Not Found
+2025-07-04T22:18:06.1305548Z INFO:     169.254.131.1:23275 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:18:06.1306480Z WARNING:root:Unknown event type: None
+2025-07-04T22:18:12.8830384Z INFO:     169.254.131.1:56747 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:18:18.5900557Z INFO:     169.254.131.1:56761 - "POST /acs/call-connected HTTP/1.1" 200 OK
+2025-07-04T22:18:24.0531954Z INFO:     169.254.131.1:31947 - "POST /acs/call-ended HTTP/1.1" 200 OK
+2025-07-04T22:19:04.8047723Z INFO:     169.254.131.1:21333 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:20:03.9085715Z INFO:     169.254.131.1:15497 - "GET / HTTP/1.1" 200 OK
+2025-07-04T22:20:06.2604876Z INFO:     169.254.131.1:15497 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:20:06.2607944Z WARNING:root:Unknown event type: Microsoft.Communication.IncomingCall
+2025-07-04T22:24:38.3444807Z WARNING:root:Unknown event type: Microsoft.Communication.IncomingCall
+2025-07-04T22:24:38.3445689Z INFO:     169.254.131.1:38347 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:24:43.1684549Z WARNING:root:Unknown event type: Microsoft.Communication.IncomingCall
+2025-07-04T22:24:43.1972962Z INFO:     169.254.131.1:38347 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:24:47.3688714Z WARNING:root:Unknown event type: Microsoft.Communication.IncomingCall
+2025-07-04T22:24:47.3689322Z INFO:     169.254.131.1:38347 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:25:25.3584190Z INFO:     Started server process [1]
+2025-07-04T22:25:25.3951504Z INFO:     Waiting for application startup.
+2025-07-04T22:25:25.4421324Z INFO:     Application startup complete.
+2025-07-04T22:25:25.4428004Z INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-07-04T22:25:25.5704629Z INFO:     169.254.131.1:29711 - "GET /robots933456.txt HTTP/1.1" 404 Not Found
+2025-07-04T22:25:45.9435787Z INFO:     Shutting down
+2025-07-04T22:25:46.0523150Z INFO:     Waiting for application shutdown.
+2025-07-04T22:25:46.0523407Z INFO:     Application shutdown complete.
+2025-07-04T22:25:46.0625073Z INFO:     Finished server process [1]
+2025-07-04T22:26:17.9436267Z INFO:     169.254.131.1:52101 - "GET / HTTP/1.1" 200 OK
+2025-07-04T22:26:56.0293106Z INFO:     169.254.131.1:19533 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:27:53.8496591Z INFO:     169.254.131.1:20701 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:28:27.9413421Z INFO:     169.254.131.1:17403 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:29:34.2272869Z INFO:     169.254.131.1:33723 - "POST /webhook/acs-events HTTP/1.1" 200 OK
+2025-07-04T22:29:49.7778734Z INFO:     Shutting down
+2025-07-04T22:29:49.8785651Z INFO:     Waiting for application shutdown.
+2025-07-04T22:29:49.8786273Z INFO:     Application shutdown complete.
+2025-07-04T22:29:49.8786304Z INFO:     Finished server process [1]
+2025-07-04T22:31:20.3890684Z INFO:     Started server process [1]
+2025-07-04T22:31:20.3897968Z INFO:     Waiting for application startup.
+2025-07-04T22:31:20.4409473Z INFO:     Application startup complete.
+2025-07-04T22:31:20.4418418Z INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-07-04T22:31:20.9177763Z INFO:     169.254.130.1:41859 - "GET /robots933456.txt HTTP/1.1" 404 Not Found
+2025-07-04T22:31:21.1796279Z INFO:     169.254.130.1:41869 - "GET /docs HTTP/1.1" 200 OK
+2025-07-04T22:31:21.2475209Z INFO:     169.254.130.1:41865 - "GET /openapi.json HTTP/1.1" 200 OK
+2025-07-04T22:31:21.4398425Z INFO:     169.254.130.1:41865 - "GET /openapi.json HTTP/1.1" 200 OK
+2025-07-04T22:31:45.8579454Z INFO:     169.254.130.1:61711 - "GET / HTTP/1.1" 200 OK
+2025-07-04T22:31:51.6697756Z INFO:     169.254.130.1:36431 - "POST /webhook/acs-events HTTP/1.1" 200 OK
