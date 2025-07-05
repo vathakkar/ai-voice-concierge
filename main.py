@@ -6,6 +6,7 @@ from config import REAL_PHONE_NUMBER
 import uuid
 import asyncio
 import logging
+import time
 
 app = FastAPI()
 
@@ -36,8 +37,8 @@ async def twilio_voice(request: Request):
     redirect_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
     twiml = f'''
     <Response>
-        <Say voice="alice">Hello, this is an AI concierge for Vansh. How can I help you today?</Say>
-        <Gather input="speech" action="{action_url}" method="POST" timeout="8">
+        <Say voice="alice">Hello, this is an A I concierge for Vansh. How can I help you today?</Say>
+        <Gather input="speech" action="{action_url}" method="POST" timeout="6">
         </Gather>
         <Redirect method="POST">{redirect_url}</Redirect>
     </Response>
@@ -49,7 +50,6 @@ async def twilio_ai_response(request: Request):
     logger.info("/twilio/ai-response endpoint called")
     try:
         form = await request.form()
-        logger.info(f"Incoming form data: {dict(form)}")
         user_speech = form.get("SpeechResult", "")
         session_id = request.query_params.get("session_id")
         retry = int(request.query_params.get("retry", "0"))
@@ -69,20 +69,16 @@ async def twilio_ai_response(request: Request):
         call_id = session.get("call_id")
         
         if user_speech.strip():
-            if call_id:
-                log_conversation_turn(call_id, turn_index, "user", user_speech)
+            # Get AI response first (fastest path)
             bot.add_user_message(user_speech)
             ai_reply = bot.get_response()
-            if call_id:
-                log_conversation_turn(call_id, turn_index, "bot", ai_reply)
             session["turn_index"] += 1
             logger.info(f"AI reply: {ai_reply}")
 
-            # Handle transfer and end call commands
+            # Generate response immediately
             if "{TRANSFER}" in ai_reply:
                 clean_reply = ai_reply.replace("{TRANSFER}", "").strip()
                 logger.info("AI decided to transfer call")
-                log_final_decision(call_id, "transferred")
                 fallback_url = f"/twilio/transfer-fallback?session_id={session_id}".replace("&", "&amp;")
                 twiml = f'''
                 <Response>
@@ -90,30 +86,54 @@ async def twilio_ai_response(request: Request):
                     <Dial timeout="30" record="false" answerOnBridge="true" action="{fallback_url}">{REAL_PHONE_NUMBER}</Dial>
                 </Response>
                 '''
-                return Response(content=twiml, media_type="application/xml")
+                response = Response(content=twiml, media_type="application/xml")
+                
+                # Log after response is ready
+                if call_id:
+                    log_conversation_turn(call_id, turn_index-1, "user", user_speech)
+                    log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
+                    log_final_decision(call_id, "transferred")
+                
+                return response
+                
             elif "{END CALL}" in ai_reply:
                 clean_reply = ai_reply.replace("{END CALL}", "").strip()
                 logger.info("AI decided to end call")
-                log_final_decision(call_id, "completed")
                 twiml = f'''
                 <Response>
                     <Say voice="alice">{clean_reply}</Say>
                 </Response>
                 '''
-                return Response(content=twiml, media_type="application/xml")
+                response = Response(content=twiml, media_type="application/xml")
+                
+                # Log after response is ready
+                if call_id:
+                    log_conversation_turn(call_id, turn_index-1, "user", user_speech)
+                    log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
+                    log_final_decision(call_id, "completed")
+                
+                return response
+                
             else:
                 logger.info("Continuing conversation")
                 action_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
                 redirect_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
                 twiml = f'''
                 <Response>
-                    <Gather input="speech" action="{action_url}" method="POST" timeout="8">
+                    <Gather input="speech" action="{action_url}" method="POST" timeout="6">
                         <Say voice="alice">{ai_reply}</Say>
                     </Gather>
                     <Redirect method="POST">{redirect_url}</Redirect>
                 </Response>
                 '''
-                return Response(content=twiml, media_type="application/xml")
+                response = Response(content=twiml, media_type="application/xml")
+                
+                # Log after response is ready
+                if call_id:
+                    log_conversation_turn(call_id, turn_index-1, "user", user_speech)
+                    log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
+                
+                return response
         
         else:
             if retry == 0:
@@ -122,8 +142,8 @@ async def twilio_ai_response(request: Request):
                 redirect_url = f"/twilio/ai-response?session_id={session_id}&retry=1".replace("&", "&amp;")
                 twiml = f'''
                 <Response>
-                    <Gather input="speech" action="{action_url}" method="POST" timeout="7">
-                        <Say voice="alice">I didn't hear anything. Can you please say how I can help?</Say>
+                    <Gather input="speech" action="{action_url}" method="POST" timeout="5">
+                        <Say voice="alice">I didn't hear anything. Can you please repeat how I can help?</Say>
                     </Gather>
                     <Redirect method="POST">{redirect_url}</Redirect>
                 </Response>
@@ -131,13 +151,13 @@ async def twilio_ai_response(request: Request):
                 return Response(content=twiml, media_type="application/xml")
             else:
                 logger.info("No speech detected after retry, ending call.")
-                if call_id:
-                    log_final_decision(call_id, "ended_no_speech")
                 twiml = '''
                 <Response>
                     <Say voice="alice">Sorry, I still didn't hear anything. Goodbye!</Say>
                 </Response>
                 '''
+                if call_id:
+                    log_final_decision(call_id, "ended_no_speech")
                 return Response(content=twiml, media_type="application/xml")
     
     except Exception as e:

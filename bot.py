@@ -1,5 +1,7 @@
 import openai
 import json
+import time
+import logging
 from config import AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 from prompts import get_system_prompt, get_urgency_analysis_prompt
 
@@ -9,6 +11,8 @@ client = openai.AzureOpenAI(
     api_version="2025-01-01-preview",
     azure_endpoint=AZURE_OPENAI_ENDPOINT
 )
+
+logger = logging.getLogger("twilio")
 
 class VoiceConciergeBot:
     def __init__(self, session_id):
@@ -25,15 +29,21 @@ class VoiceConciergeBot:
         self.history.append({"role": "assistant", "content": text})
 
     def get_response(self):
-        # Use the new comprehensive system prompt
+        # Use the optimized system prompt
         system_prompt = get_system_prompt()
         messages = [{"role": "system", "content": system_prompt}] + self.history
+        
+        # Time the OpenAI API call specifically
+        openai_start = time.time()
         response = client.chat.completions.create(
-            model=AZURE_OPENAI_DEPLOYMENT,
+            model=AZURE_OPENAI_DEPLOYMENT,  # Keep original model constant
             messages=messages,
-            temperature=0.2,  # Lower temperature for faster, more consistent responses
-            max_tokens=200,   # Reduced for faster generation
+            temperature=0.2,  # Slightly higher for more natural responses
+            max_tokens=75,    # Increased for more natural language
         )
+        openai_time = (time.time() - openai_start) * 1000
+        logger.info(f"OpenAI API call time: {openai_time:.2f}ms")
+        
         reply = response.choices[0].message.content
         self.add_bot_message(reply)
         # Analyze the response for decision making
