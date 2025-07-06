@@ -67,6 +67,7 @@ def init_db():
     Schema Details:
     - calls table: Stores call metadata and final decisions
     - conversation table: Stores individual conversation turns with foreign key to calls
+    - exception_phone_numbers table: Stores family/friends/favorite contacts that bypass AI screening
     
     Note: This function is called automatically on application startup.
     """
@@ -102,6 +103,19 @@ def init_db():
                 FOREIGN KEY(call_id) REFERENCES calls(id)
             )
         ''')
+        
+        # Create exception_phone_numbers table if it doesn't exist
+        c.execute('''
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='exception_phone_numbers' AND xtype='U')
+            CREATE TABLE exception_phone_numbers (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                phone_number NVARCHAR(20) UNIQUE,
+                contact_name NVARCHAR(100),
+                category NVARCHAR(50),
+                added_date NVARCHAR(50),
+                is_active BIT DEFAULT 1
+            )
+        ''')
     else:
         # SQLite schema (development)
         # Note: Uses SQLite-specific syntax for table creation
@@ -127,6 +141,18 @@ def init_db():
                 text TEXT,
                 timestamp TEXT,
                 FOREIGN KEY(call_id) REFERENCES calls(id)
+            )
+        ''')
+        
+        # Create exception_phone_numbers table if it doesn't exist
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS exception_phone_numbers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                phone_number TEXT UNIQUE,
+                contact_name TEXT,
+                category TEXT,
+                added_date TEXT,
+                is_active INTEGER DEFAULT 1
             )
         ''')
     
@@ -296,4 +322,193 @@ def get_recent_conversations(limit=10):
     
     # Convert to list and limit to requested number of calls
     result = list(conversations.values())[:limit]
-    return result 
+    return result
+
+def is_exception_phone_number(phone_number):
+    """
+    Check if a phone number is in the exception list (family/friends/favorites)
+    
+    This function checks if the given phone number exists in the exception_phone_numbers
+    table and is marked as active. If found, the call should bypass AI screening.
+    
+    Args:
+        phone_number: The phone number to check (e.g., "+1234567890")
+        
+    Returns:
+        dict or None: Contact information if found, None if not in exception list
+        
+    Note: Phone numbers are stored in E.164 format for consistency.
+    """
+    conn = get_connection()
+    c = conn.cursor()
+    
+    # Normalize phone number to E.164 format if needed
+    normalized_number = phone_number
+    if not phone_number.startswith('+'):
+        normalized_number = '+' + phone_number
+    
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        # Azure SQL: Check for active exception phone number
+        c.execute('''
+            SELECT id, phone_number, contact_name, category, added_date
+            FROM exception_phone_numbers
+            WHERE phone_number = ? AND is_active = 1
+        ''', (normalized_number,))
+    else:
+        # SQLite: Check for active exception phone number
+        c.execute('''
+            SELECT id, phone_number, contact_name, category, added_date
+            FROM exception_phone_numbers
+            WHERE phone_number = ? AND is_active = 1
+        ''', (normalized_number,))
+    
+    row = c.fetchone()
+    conn.close()
+    
+    if row:
+        return {
+            'id': row[0],
+            'phone_number': row[1],
+            'contact_name': row[2],
+            'category': row[3],
+            'added_date': row[4]
+        }
+    return None
+
+def add_exception_phone_number(phone_number, contact_name, category="family"):
+    """
+    Add a phone number to the exception list
+    
+    This function adds a new phone number to the exception_phone_numbers table.
+    Calls from this number will bypass AI screening and be transferred directly.
+    
+    Args:
+        phone_number: The phone number to add (e.g., "+1234567890")
+        contact_name: Name of the contact (e.g., "Mom", "John Smith")
+        category: Category of contact (e.g., "family", "friends", "work")
+        
+    Returns:
+        bool: True if successfully added, False if already exists or error
+        
+    Note: Phone numbers are stored in E.164 format for consistency.
+    """
+    conn = get_connection()
+    c = conn.cursor()
+    
+    # Normalize phone number to E.164 format if needed
+    normalized_number = phone_number
+    if not phone_number.startswith('+'):
+        normalized_number = '+' + phone_number
+    
+    # Check if phone number already exists
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
+    else:
+        c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
+    
+    if c.fetchone():
+        conn.close()
+        return False  # Already exists
+    
+    # Add new exception phone number
+    added_date = datetime.utcnow().isoformat()
+    
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
+            VALUES (?, ?, ?, ?, 1)
+        ''', (normalized_number, contact_name, category, added_date))
+    else:
+        c.execute('''
+            INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
+            VALUES (?, ?, ?, ?, 1)
+        ''', (normalized_number, contact_name, category, added_date))
+    
+    conn.commit()
+    conn.close()
+    return True
+
+def remove_exception_phone_number(phone_number):
+    """
+    Remove a phone number from the exception list (soft delete)
+    
+    This function marks a phone number as inactive in the exception_phone_numbers table.
+    Calls from this number will no longer bypass AI screening.
+    
+    Args:
+        phone_number: The phone number to remove (e.g., "+1234567890")
+        
+    Returns:
+        bool: True if successfully removed, False if not found or error
+        
+    Note: This performs a soft delete by setting is_active = 0.
+    """
+    conn = get_connection()
+    c = conn.cursor()
+    
+    # Normalize phone number to E.164 format if needed
+    normalized_number = phone_number
+    if not phone_number.startswith('+'):
+        normalized_number = '+' + phone_number
+    
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            UPDATE exception_phone_numbers 
+            SET is_active = 0 
+            WHERE phone_number = ?
+        ''', (normalized_number,))
+    else:
+        c.execute('''
+            UPDATE exception_phone_numbers 
+            SET is_active = 0 
+            WHERE phone_number = ?
+        ''', (normalized_number,))
+    
+    rows_affected = c.rowcount
+    conn.commit()
+    conn.close()
+    
+    return rows_affected > 0
+
+def get_all_exception_phone_numbers():
+    """
+    Get all active exception phone numbers
+    
+    This function retrieves all active phone numbers from the exception_phone_numbers table.
+    
+    Returns:
+        list: List of dictionaries containing exception phone number data
+        
+    Note: Only returns active (is_active = 1) phone numbers.
+    """
+    conn = get_connection()
+    c = conn.cursor()
+    
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            SELECT id, phone_number, contact_name, category, added_date
+            FROM exception_phone_numbers
+            WHERE is_active = 1
+            ORDER BY contact_name ASC
+        ''')
+    else:
+        c.execute('''
+            SELECT id, phone_number, contact_name, category, added_date
+            FROM exception_phone_numbers
+            WHERE is_active = 1
+            ORDER BY contact_name ASC
+        ''')
+    
+    rows = c.fetchall()
+    conn.close()
+    
+    return [
+        {
+            'id': row[0],
+            'phone_number': row[1],
+            'contact_name': row[2],
+            'category': row[3],
+            'added_date': row[4]
+        }
+        for row in rows
+    ] 

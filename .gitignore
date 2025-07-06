@@ -235,4 +235,6 @@ site/
 *.bak
 *.backup
 *.old
-*.orig 
+*.orig
+
+README-SECURE.md 
