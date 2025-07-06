@@ -1,4 +1,4 @@
-# AI Voice Concierge - Source of Truth
+# AI Voice Concierge
 
 ## Overview
 This project is a production-ready AI Voice Concierge system that answers phone calls, screens callers, and interacts using natural language. It is built with FastAPI, Twilio Voice, Azure OpenAI, and Azure SQL Database for persistent logging.
@@ -63,7 +63,7 @@ TWILIO_PHONE_NUMBER=+1234567890
 
 #### Phone Number Configuration
 ```bash
-# Real phone number for call transfers (your actual phone number)
+# Real phone number for call transfers
 REAL_PHONE_NUMBER=+1234567890
 ```
 
@@ -126,20 +126,28 @@ SQLITE_DB_PATH=calls.db
 ---
 
 ## Call Flow
-1. **Incoming Call**: Twilio forwards the call to `/twilio/voice`.
-2. **Greeting**: Twilio handles the initial greeting, then uses `<Gather input="speech">` to collect their reason for calling.
-3. **AI Processing**: The caller's speech is sent to `/twilio/ai-response`, which uses Azure OpenAI to generate a natural, conversational response.
-4. **Screening & Action**: The AI classifies the call and takes action:
-   - **Transfer**: For urgent/legitimate calls, uses `{TRANSFER}` command to transfer to Vansh's real number
-   - **End Call**: For non-urgent calls, ends call after AI response with suggestion to text if urgent
+1. **Incoming Call**: Personal phone number is forwarded to the Twilio number, which then forwards the call to `/twilio/voice`.
+2. **Exception Check**: System checks if the caller's phone number is in the exception list (family/friends/favorites).
+3. **Direct Transfer**: If caller is in exception list, call is transferred directly without AI screening.
+4. **AI Screening**: If caller is not in exception list, proceeds with normal AI screening:
+   - **Greeting**: Twilio handles the initial greeting, then uses `<Gather input="speech">` to collect their reason for calling.
+   - **AI Processing**: The caller's speech is sent to `/twilio/ai-response`, which uses Azure OpenAI to generate a natural, conversational response.
+   - **Screening & Action**: The AI classifies the call and takes action:
+     - **Transfer**: For urgent/legitimate calls, uses `{TRANSFER}` command to transfer to the real phone number
+     - **End Call**: For non-urgent calls, ends call after AI response with suggestion to text if urgent
 5. **Logging**: Every interaction is logged in the Azure SQL Database with timing information.
 6. **Review**: Recent conversations can be viewed via the `/conversations` endpoint.
+
+## Twilio Configuration
+- **Phone Number Forwarding**: Personal phone number is configured to forward all incoming calls to the Twilio number
+- **Webhook Setup**: The Twilio webhook is configured in the Twilio portal to point to the Azure App Service endpoint
+- **Webhook URL**: `https://your-app.azurewebsites.net/twilio/voice` (configured in Twilio Console)
 
 ---
 
 ## AI Context (System Prompt)
 - The AI is instructed to:
-  - Respond naturally and conversationally as an AI concierge for Vansh.
+  - Respond naturally and conversationally as an AI concierge.
   - Screen for urgency, legitimacy, and call type (family, business, sales, etc.).
   - Use `{TRANSFER}` command for urgent/legitimate calls that need immediate attention.
   - For non-urgent calls, provide helpful responses and suggest texting if urgent.
@@ -170,17 +178,31 @@ SQLITE_DB_PATH=calls.db
 ## Database Schema
 - **calls**: One row per call (caller_id, start_time, end_time, final_decision)
 - **conversation**: One row per turn (call_id, turn_index, speaker, text, timestamp)
-- **final_decision values**: "transferred", "completed", "ended_no_speech"
+- **exception_phone_numbers**: Family/friends/favorite contacts that bypass AI screening
+- **final_decision values**: "transferred", "completed", "ended_no_speech", "transferred_exception"
 - Schema is auto-created on first run if missing.
 
 ---
 
 ## Endpoints
+
+### Core Twilio Endpoints
 - `/twilio/voice`: Twilio webhook for incoming calls (POST)
 - `/twilio/ai-response`: Handles speech input and returns AI response (POST)
 - `/twilio/transfer-fallback`: Handles transfer failures (POST)
+
+### Management Endpoints
 - `/conversations`: Returns recent conversations (GET)
 - `/test-db`: Diagnostic endpoint for DB connectivity (GET)
+
+### Phase 2: Exception Phone Number Management
+- `/exceptions`: Get all active exception phone numbers (GET)
+- `/exceptions`: Add a phone number to exception list (POST)
+- `/exceptions/{phone_number}`: Remove a phone number from exception list (DELETE)
+- `/exceptions/check/{phone_number}`: Check if a phone number is in exception list (GET)
+
+### Management Script
+- `add_exception.py`: Interactive script to manage exception phone numbers (reads BASE_URL from .env file)
 
 ---
 
@@ -259,11 +281,59 @@ SQLITE_DB_PATH=calls.db
 ---
 
 ## How to Review Conversations
-- Visit `https://ai-voice-concierge.azurewebsites.net/conversations` after a call to see logs.
+- Visit `https://your-app.azurewebsites.net/conversations` after a call to see logs.
 - Each entry includes all user and bot turns, timestamps, call metadata, and final decision.
 - Response timing information is logged for performance monitoring.
 
+## Managing Exception Phone Numbers
+
+### Using the Management Script
+The `add_exception.py` script provides an interactive way to manage your exception phone numbers:
+
+1. **Setup**: Ensure your `.env` file contains the `BASE_URL` variable:
+   ```bash
+   BASE_URL=https://your-app.azurewebsites.net
+   ```
+
+2. **Run the script**:
+   ```bash
+   python3 add_exception.py
+   ```
+
+3. **Interactive options**:
+   - Add new exception contacts
+   - List all current exceptions
+   - Check if a number is in the exception list
+   - Exit the program
+
+### Using API Endpoints Directly
+You can also manage exceptions using the REST API endpoints:
+
+**Add a contact**:
+```bash
+curl -X POST https://your-app.azurewebsites.net/exceptions \
+  -H "Content-Type: application/json" \
+  -d '{"phone_number": "+1234567890", "contact_name": "Mom", "category": "family"}'
+```
+
+**List all exceptions**:
+```bash
+curl https://your-app.azurewebsites.net/exceptions
+```
+
+**Check a number**:
+```bash
+curl https://your-app.azurewebsites.net/exceptions/check/+1234567890
+```
+
 ---
+
+## Phase 2: Exception Phone Numbers
+- **Direct Transfer**: Family, friends, and favorite contacts bypass AI screening
+- **Database Storage**: Exception phone numbers stored in Azure SQL Database
+- **Management API**: REST endpoints to add/remove/check exception phone numbers
+- **Categories**: Support for categorizing contacts (family, friends, work, etc.)
+- **Soft Delete**: Phone numbers can be deactivated without permanent deletion
 
 ## Recent Optimizations
 - **Natural Language**: Updated system prompts for more conversational responses
@@ -311,5 +381,56 @@ SQLITE_DB_PATH=calls.db
 
 ---
 
+## Getting Started
+
+### Prerequisites
+- Python 3.8+
+- Azure subscription (for production deployment)
+- Twilio account with a phone number
+- Azure OpenAI resource
+
+### Quick Start
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/ai-voice-concierge.git
+   cd ai-voice-concierge
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set up environment variables**:
+   - Copy `.env.example` to `.env` (if available)
+   - Or create a `.env` file with the required environment variables
+   - **Never commit your `.env` file to version control**
+
+4. **Run locally**:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+### Environment Variables Setup
+Create a `.env` file in the project root with the following variables:
+```bash
+# Azure OpenAI
+AZURE_OPENAI_KEY=your_key_here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=your_deployment
+
+# Twilio
+TWILIO_ACCOUNT_SID=your_account_sid
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_NUMBER=+1234567890
+
+# Phone Configuration
+REAL_PHONE_NUMBER=+1234567890
+
+# Database (use SQLite for local development)
+USE_AZURE_SQL=false
+SQLITE_DB_PATH=calls.db
+```
+
 ## Contact
-For questions or improvements, contact Vansh or the project maintainer. 
+For questions or improvements, please open an issue or submit a pull request. 

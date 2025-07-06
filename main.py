@@ -20,7 +20,7 @@ or environment variables in development. Never hardcode sensitive information.
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
-from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations
+from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number
 from bot import VoiceConciergeBot
 from config import REAL_PHONE_NUMBER
 import uuid
@@ -68,29 +68,52 @@ async def twilio_voice(request: Request):
     Twilio webhook endpoint for incoming voice calls
     
     This endpoint is called when a new call comes in. It:
-    1. Creates a new session for the call
-    2. Initializes the AI bot
-    3. Logs the call start
-    4. Returns TwiML to greet the caller and collect speech
+    1. Checks if caller is in exception list (family/friends/favorites)
+    2. If exception: transfers directly without AI screening
+    3. If not exception: creates session and proceeds with AI screening
+    4. Logs the call start
     
     Args:
         request: FastAPI Request object containing Twilio form data
         
     Returns:
-        TwiML Response with greeting and speech collection
+        TwiML Response with appropriate action (transfer or AI screening)
     """
-    # Generate unique session ID for this call
-    session_id = str(uuid.uuid4())
-    
-    # Initialize AI bot for this session
-    bot = VoiceConciergeBot(session_id)
-    
     # Extract caller information from Twilio form data
     form = await request.form()
     caller_id = form.get("From", "unknown")
     
     # Log the new call and get call ID for database tracking
     call_id = log_new_call(caller_id)
+    
+    # Check if caller is in exception list (family/friends/favorites)
+    exception_contact = is_exception_phone_number(caller_id)
+    
+    if exception_contact:
+        # Caller is in exception list - transfer directly without AI screening
+        debug_logger.info(f"Exception contact detected: {exception_contact['contact_name']} ({exception_contact['phone_number']}) - transferring directly")
+        
+        # Log the direct transfer decision
+        log_final_decision(call_id, "transferred_exception")
+        
+        # Transfer to real phone number
+        twiml = f'''
+        <Response>
+            <Say voice="polly.justin">Transferring you now.</Say>
+            <Dial>{REAL_PHONE_NUMBER}</Dial>
+        </Response>
+        '''
+        
+        return Response(content=twiml, media_type="application/xml")
+    
+    # Caller is not in exception list - proceed with normal AI screening
+    debug_logger.info(f"Regular caller detected: {caller_id} - proceeding with AI screening")
+    
+    # Generate unique session ID for this call
+    session_id = str(uuid.uuid4())
+    
+    # Initialize AI bot for this session
+    bot = VoiceConciergeBot(session_id)
     
     # Store session data for later use
     sessions[session_id] = {
@@ -412,4 +435,125 @@ async def test_database():
     Returns:
         JSON response with database status
     """
-    return {"status": "Database connection successful"} 
+    return {"status": "Database connection successful"}
+
+# Phase 2: Exception Phone Number Management Endpoints
+
+@app.get("/exceptions")
+async def get_exception_phone_numbers():
+    """
+    Get all active exception phone numbers
+    
+    Returns:
+        JSONResponse: List of all active exception phone numbers
+    """
+    try:
+        from database import get_all_exception_phone_numbers
+        exceptions = get_all_exception_phone_numbers()
+        return JSONResponse(content={"exceptions": exceptions, "count": len(exceptions)})
+    except Exception as e:
+        debug_logger.error(f"Error getting exception phone numbers: {e}")
+        return JSONResponse(content={"error": "Failed to retrieve exception phone numbers"}, status_code=500)
+
+@app.post("/exceptions")
+async def add_exception_phone_number(request: Request):
+    """
+    Add a phone number to the exception list
+    
+    Expected JSON body:
+    {
+        "phone_number": "+1234567890",
+        "contact_name": "Mom",
+        "category": "family"
+    }
+    
+    Returns:
+        JSONResponse: Success/failure status
+    """
+    try:
+        from database import add_exception_phone_number
+        body = await request.json()
+        
+        phone_number = body.get("phone_number")
+        contact_name = body.get("contact_name")
+        category = body.get("category", "family")
+        
+        if not phone_number or not contact_name:
+            return JSONResponse(
+                content={"error": "phone_number and contact_name are required"}, 
+                status_code=400
+            )
+        
+        success = add_exception_phone_number(phone_number, contact_name, category)
+        
+        if success:
+            return JSONResponse(content={"message": "Exception phone number added successfully"})
+        else:
+            return JSONResponse(
+                content={"error": "Phone number already exists in exception list"}, 
+                status_code=409
+            )
+            
+    except Exception as e:
+        debug_logger.error(f"Error adding exception phone number: {e}")
+        return JSONResponse(content={"error": "Failed to add exception phone number"}, status_code=500)
+
+@app.delete("/exceptions/{phone_number}")
+async def remove_exception_phone_number(phone_number: str):
+    """
+    Remove a phone number from the exception list
+    
+    Args:
+        phone_number: The phone number to remove (URL encoded)
+        
+    Returns:
+        JSONResponse: Success/failure status
+    """
+    try:
+        from database import remove_exception_phone_number
+        from urllib.parse import unquote
+        
+        # URL decode the phone number
+        decoded_number = unquote(phone_number)
+        
+        success = remove_exception_phone_number(decoded_number)
+        
+        if success:
+            return JSONResponse(content={"message": "Exception phone number removed successfully"})
+        else:
+            return JSONResponse(
+                content={"error": "Phone number not found in exception list"}, 
+                status_code=404
+            )
+            
+    except Exception as e:
+        debug_logger.error(f"Error removing exception phone number: {e}")
+        return JSONResponse(content={"error": "Failed to remove exception phone number"}, status_code=500)
+
+@app.get("/exceptions/check/{phone_number}")
+async def check_exception_phone_number(phone_number: str):
+    """
+    Check if a phone number is in the exception list
+    
+    Args:
+        phone_number: The phone number to check (URL encoded)
+        
+    Returns:
+        JSONResponse: Contact information if found, null if not found
+    """
+    try:
+        from urllib.parse import unquote
+        
+        # URL decode the phone number
+        decoded_number = unquote(phone_number)
+        
+        contact = is_exception_phone_number(decoded_number)
+        
+        if contact:
+            return JSONResponse(content={"found": True, "contact": contact})
+        else:
+            return JSONResponse(content={"found": False, "contact": None})
+            
+    except Exception as e:
+        debug_logger.error(f"Error checking exception phone number: {e}")
+        return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
