@@ -18,8 +18,9 @@ Security Note: All API keys and secrets are loaded from Azure Key Vault in produ
 or environment variables in development. Never hardcode sensitive information.
 """
 
-from fastapi import FastAPI, Request
-from fastapi.responses import Response, JSONResponse
+from fastapi import FastAPI, Request, Response, Depends, HTTPException, status, Cookie
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
 from bot import VoiceConciergeBot
 from config import REAL_PHONE_NUMBER
@@ -28,6 +29,8 @@ import logging
 from fastapi.staticfiles import StaticFiles
 import time
 import asyncio
+import bcrypt
+import secrets
 
 # Initialize FastAPI application
 app = FastAPI(title="AI Voice Concierge", description="AI-powered phone call screening system")
@@ -40,6 +43,13 @@ debug_logger = logging.getLogger("debug")
 # Global session storage for call state management
 # Note: In production, consider using Redis or database for session persistence
 sessions = {}
+
+# Session management
+SESSION_COOKIE_NAME = "dashboard_session"
+SESSION_SECRET = secrets.token_urlsafe(32)
+SESSIONS = {}
+
+templates = Jinja2Templates(directory="static")
 
 @app.on_event("startup")
 def startup_event():
@@ -560,4 +570,65 @@ async def check_exception_phone_number(phone_number: str):
             
     except Exception as e:
         debug_logger.error(f"Error checking exception phone number: {e}")
-        return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
+        return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500)
+
+def verify_admin(username, password):
+    from database import get_connection
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('SELECT password_hash FROM admin_credentials WHERE username = ?', (username,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return bcrypt.checkpw(password.encode('utf-8'), row[0].encode('utf-8'))
+    return False
+
+def get_current_admin(session_id: str = Cookie(None)):
+    if session_id and session_id in SESSIONS:
+        return SESSIONS[session_id]
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+@app.get("/dashboard-login")
+def dashboard_login_form(request: Request):
+    html = '''
+    <html><body>
+    <h2>AI Concierge Dashboard Login</h2>
+    <form method="post" action="/dashboard-login">
+      <label>Username:</label><input name="username" type="text"/><br/>
+      <label>Password:</label><input name="password" type="password"/><br/>
+      <input type="submit" value="Login"/>
+    </form>
+    </body></html>
+    '''
+    return HTMLResponse(content=html)
+
+@app.post("/dashboard-login")
+def dashboard_login(request: Request):
+    import asyncio
+    async def parse_form():
+        form = await request.form()
+        return form
+    form = asyncio.run(parse_form())
+    username = form.get("username")
+    password = form.get("password")
+    if verify_admin(username, password):
+        session_id = secrets.token_urlsafe(32)
+        SESSIONS[session_id] = username
+        response = RedirectResponse(url="/dashboard", status_code=302)
+        response.set_cookie(key=SESSION_COOKIE_NAME, value=session_id, httponly=True, secure=True)
+        return response
+    html = '''<html><body><h2>Login failed</h2><a href="/dashboard-login">Try again</a></body></html>'''
+    return HTMLResponse(content=html, status_code=401)
+
+@app.get("/dashboard-logout")
+def dashboard_logout(session_id: str = Cookie(None)):
+    if session_id in SESSIONS:
+        del SESSIONS[session_id]
+    response = RedirectResponse(url="/dashboard-login", status_code=302)
+    response.delete_cookie(SESSION_COOKIE_NAME)
+    return response
+
+@app.get("/dashboard")
+def dashboard_home(admin: str = Depends(get_current_admin)):
+    html = f'''<html><body><h2>Welcome, {admin}!</h2><a href="/dashboard-logout">Logout</a></body></html>'''
+    return HTMLResponse(content=html) 

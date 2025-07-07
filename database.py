@@ -26,6 +26,7 @@ import sqlite3
 from datetime import datetime
 from config import SQLITE_DB_PATH, AZURE_SQL_CONNECTION_STRING
 import re
+import bcrypt
 
 # Database configuration - determines which database to use
 # Set USE_AZURE_SQL=true in production, false for local development
@@ -69,6 +70,7 @@ def init_db():
     - calls table: Stores call metadata and final decisions
     - conversation table: Stores individual conversation turns with foreign key to calls
     - exception_phone_numbers table: Stores family/friends/favorite contacts that bypass AI screening
+    - admin_credentials table: Stores admin credentials
     
     Note: This function is called automatically on application startup.
     """
@@ -115,6 +117,17 @@ def init_db():
                 category NVARCHAR(50),
                 added_date NVARCHAR(50),
                 is_active BIT DEFAULT 1
+            )
+        ''')
+        
+        # Create admin_credentials table if it doesn't exist
+        c.execute('''
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='admin_credentials' AND xtype='U')
+            CREATE TABLE admin_credentials (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                username NVARCHAR(50) UNIQUE,
+                password_hash NVARCHAR(255),
+                created_date NVARCHAR(50)
             )
         ''')
         
@@ -167,6 +180,16 @@ def init_db():
             )
         ''')
         
+        # Create admin_credentials table if it doesn't exist
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS admin_credentials (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password_hash TEXT,
+                created_date TEXT
+            )
+        ''')
+        
         # Add columns if not exist (SQLite)
         c.execute("PRAGMA table_info(calls)")
         columns = [row[1] for row in c.fetchall()]
@@ -177,6 +200,14 @@ def init_db():
     
     # Commit the schema changes
     conn.commit()
+    # Insert default admin if not present
+    c.execute('SELECT id FROM admin_credentials WHERE username = ?', ('admin',))
+    if not c.fetchone():
+        password = 'HappyOnion98!'
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        created_date = datetime.utcnow().isoformat()
+        c.execute('INSERT INTO admin_credentials (username, password_hash, created_date) VALUES (?, ?, ?)', ('admin', password_hash, created_date))
+        conn.commit()
     conn.close()
 
 def log_new_call(caller_id):

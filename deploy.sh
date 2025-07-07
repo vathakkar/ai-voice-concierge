@@ -38,3 +38,10 @@ az webapp config container set --name $APP_NAME --resource-group $RESOURCE_GROUP
 az webapp restart --name $APP_NAME --resource-group $RESOURCE_GROUP
 
 echo "Deployment complete!"
+
+# This script assumes you are using ACR admin credentials for App Service container config.
+# Make sure DOCKER_REGISTRY_SERVER_USERNAME and DOCKER_REGISTRY_SERVER_PASSWORD are set in App Service.
+# The Dockerfile must run both FastAPI and Streamlit (see Dockerfile for details).
+# Build for linux/amd64 platform only.
+
+# If you add new Python dependencies, update requirements.txt and rebuild.

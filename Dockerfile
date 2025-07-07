@@ -21,7 +21,7 @@
 
 # Use Python 3.11 slim image as base
 # Slim images are smaller and more secure than full Python images
-FROM python:3.11-slim
+FROM --platform=linux/amd64 python:3.11-slim
 
 # Set working directory in container
 WORKDIR /app
@@ -34,16 +34,22 @@ COPY requirements.txt .
 # --no-cache-dir reduces image size by not caching pip packages
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install supervisor for process management
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
 # Copy application code to container
 # This includes all Python files, static assets, and configuration
 COPY . .
 
-# Expose port 8000 for FastAPI application
-# Azure App Service will map this to the appropriate external port
-EXPOSE 8000
+# Supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose ports 8000 for FastAPI and 8501 for Streamlit
+# Azure App Service will map these to the appropriate external ports
+EXPOSE 8000 8501
 
 # Start the FastAPI application using uvicorn
 # Uses environment variable PORT for Azure App Service compatibility
 # --host 0.0.0.0 allows external connections
 # --port ${PORT:-8000} uses PORT env var or defaults to 8000
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"] 
+CMD ["/usr/bin/supervisord"] 
