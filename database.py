@@ -25,6 +25,7 @@ import os
 import sqlite3
 from datetime import datetime
 from config import SQLITE_DB_PATH, AZURE_SQL_CONNECTION_STRING
+import re
 
 # Database configuration - determines which database to use
 # Set USE_AZURE_SQL=true in production, false for local development
@@ -116,6 +117,16 @@ def init_db():
                 is_active BIT DEFAULT 1
             )
         ''')
+        
+        # Add columns if not exist (Azure SQL)
+        c.execute('''
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'summary' AND Object_ID = Object_ID(N'calls'))
+            ALTER TABLE calls ADD summary NVARCHAR(MAX) NULL
+        ''')
+        c.execute('''
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'outcome' AND Object_ID = Object_ID(N'calls'))
+            ALTER TABLE calls ADD outcome NVARCHAR(50) NULL
+        ''')
     else:
         # SQLite schema (development)
         # Note: Uses SQLite-specific syntax for table creation
@@ -155,6 +166,14 @@ def init_db():
                 is_active INTEGER DEFAULT 1
             )
         ''')
+        
+        # Add columns if not exist (SQLite)
+        c.execute("PRAGMA table_info(calls)")
+        columns = [row[1] for row in c.fetchall()]
+        if 'summary' not in columns:
+            c.execute('ALTER TABLE calls ADD COLUMN summary TEXT')
+        if 'outcome' not in columns:
+            c.execute('ALTER TABLE calls ADD COLUMN outcome TEXT')
     
     # Commit the schema changes
     conn.commit()
@@ -221,7 +240,7 @@ def log_conversation_turn(call_id, turn_index, speaker, text):
     conn.commit()
     conn.close()
 
-def log_final_decision(call_id, final_decision):
+def log_final_decision(call_id, final_decision, summary=None, outcome=None):
     """
     Log the final decision and end time for a call
     
@@ -231,15 +250,22 @@ def log_final_decision(call_id, final_decision):
     Args:
         call_id: The database ID of the call to update
         final_decision: The final outcome (e.g., 'transferred', 'completed', 'ended_no_speech')
+        summary: Optional summary of the call
+        outcome: Optional outcome of the call
         
     Note: The end_time is automatically set to the current UTC time.
     """
     conn = get_connection()
     c = conn.cursor()
     
-    # Record the call end time and final decision
-    end_time = datetime.utcnow().isoformat()
-    c.execute('UPDATE calls SET final_decision=?, end_time=? WHERE id=?', (final_decision, end_time, call_id))
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            UPDATE calls SET end_time = ?, final_decision = ?, summary = ?, outcome = ? WHERE id = ?
+        ''', (datetime.utcnow().isoformat(), final_decision, summary, outcome, call_id))
+    else:
+        c.execute('''
+            UPDATE calls SET end_time = ?, final_decision = ?, summary = ?, outcome = ? WHERE id = ?
+        ''', (datetime.utcnow().isoformat(), final_decision, summary, outcome, call_id))
     conn.commit()
     conn.close()
 
@@ -322,7 +348,23 @@ def get_recent_conversations(limit=10):
     
     # Convert to list and limit to requested number of calls
     result = list(conversations.values())[:limit]
-    return result
+    return result 
+
+def normalize_phone_number(phone_number):
+    """
+    Normalize a phone number to E.164 format for US numbers.
+    Strips all non-digit characters, ensures +1 prefix.
+    """
+    digits = re.sub(r'\D', '', phone_number)
+    if digits.startswith('1') and len(digits) == 11:
+        return f'+{digits}'
+    elif len(digits) == 10:
+        return f'+1{digits}'
+    elif digits.startswith('+') and len(digits) > 1:
+        return digits
+    else:
+        # fallback: just add plus if not present
+        return '+' + digits
 
 def is_exception_phone_number(phone_number):
     """
@@ -341,30 +383,21 @@ def is_exception_phone_number(phone_number):
     """
     conn = get_connection()
     c = conn.cursor()
-    
-    # Normalize phone number to E.164 format if needed
-    normalized_number = phone_number
-    if not phone_number.startswith('+'):
-        normalized_number = '+' + phone_number
-    
+    normalized_number = normalize_phone_number(phone_number)
     if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        # Azure SQL: Check for active exception phone number
         c.execute('''
             SELECT id, phone_number, contact_name, category, added_date
             FROM exception_phone_numbers
             WHERE phone_number = ? AND is_active = 1
         ''', (normalized_number,))
     else:
-        # SQLite: Check for active exception phone number
         c.execute('''
             SELECT id, phone_number, contact_name, category, added_date
             FROM exception_phone_numbers
             WHERE phone_number = ? AND is_active = 1
         ''', (normalized_number,))
-    
     row = c.fetchone()
     conn.close()
-    
     if row:
         return {
             'id': row[0],
@@ -394,25 +427,15 @@ def add_exception_phone_number(phone_number, contact_name, category="family"):
     """
     conn = get_connection()
     c = conn.cursor()
-    
-    # Normalize phone number to E.164 format if needed
-    normalized_number = phone_number
-    if not phone_number.startswith('+'):
-        normalized_number = '+' + phone_number
-    
-    # Check if phone number already exists
+    normalized_number = normalize_phone_number(phone_number)
     if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
         c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
     else:
         c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
-    
     if c.fetchone():
         conn.close()
-        return False  # Already exists
-    
-    # Add new exception phone number
+        return False
     added_date = datetime.utcnow().isoformat()
-    
     if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
         c.execute('''
             INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
@@ -423,7 +446,6 @@ def add_exception_phone_number(phone_number, contact_name, category="family"):
             INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
             VALUES (?, ?, ?, ?, 1)
         ''', (normalized_number, contact_name, category, added_date))
-    
     conn.commit()
     conn.close()
     return True
@@ -445,12 +467,7 @@ def remove_exception_phone_number(phone_number):
     """
     conn = get_connection()
     c = conn.cursor()
-    
-    # Normalize phone number to E.164 format if needed
-    normalized_number = phone_number
-    if not phone_number.startswith('+'):
-        normalized_number = '+' + phone_number
-    
+    normalized_number = normalize_phone_number(phone_number)
     if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
         c.execute('''
             UPDATE exception_phone_numbers 
@@ -463,11 +480,9 @@ def remove_exception_phone_number(phone_number):
             SET is_active = 0 
             WHERE phone_number = ?
         ''', (normalized_number,))
-    
     rows_affected = c.rowcount
     conn.commit()
     conn.close()
-    
     return rows_affected > 0
 
 def get_all_exception_phone_numbers():
@@ -512,3 +527,19 @@ def get_all_exception_phone_numbers():
         }
         for row in rows
     ] 
+
+# Helper to update summary/outcome after call ends
+
+def update_call_summary_and_outcome(call_id, summary, outcome):
+    conn = get_connection()
+    c = conn.cursor()
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
+        ''', (summary, outcome, call_id))
+    else:
+        c.execute('''
+            UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
+        ''', (summary, outcome, call_id))
+    conn.commit()
+    conn.close() 
