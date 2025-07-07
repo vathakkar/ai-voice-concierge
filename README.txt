@@ -138,6 +138,17 @@ SQLITE_DB_PATH=calls.db
 5. **Logging**: Every interaction is logged in the Azure SQL Database with timing information.
 6. **Review**: Recent conversations can be viewed via the `/conversations` endpoint.
 
+## Conditional Forwarding & Call Screening Flow
+
+- **Conditional Forwarding:** Your personal phone is set up with conditional call forwarding (e.g., "forward when busy" or "do not disturb") to your Twilio number.
+- **Twilio Screening:** The Twilio number receives forwarded calls and passes them to the AI Voice Concierge for screening.
+- **AI Screening:** The AI screens the call using Azure OpenAI, and either:
+  - Forwards urgent/legitimate calls to your work phone (or real phone number), or
+  - Ends the call with a helpful message for non-urgent callers.
+- **Benefit:** When your phone is in work or sleep mode, only urgent/screened calls are forwarded to your work phone, so you only answer calls that matter.
+
+This setup ensures you are not disturbed by non-urgent calls and only answer those that have been screened by the AI system.
+
 ## Twilio Configuration
 - **Phone Number Forwarding**: Personal phone number is configured to forward all incoming calls to the Twilio number
 - **Webhook Setup**: The Twilio webhook is configured in the Twilio portal to point to the Azure App Service endpoint

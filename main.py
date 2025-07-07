@@ -373,34 +373,37 @@ async def twilio_process_ai(request: Request):
 async def twilio_transfer_fallback(request: Request):
     """
     Fallback endpoint for failed call transfers
-    
     This endpoint is called when a transfer attempt fails (busy, no answer, etc.).
     It provides a graceful fallback message asking the caller to text instead.
-    
-    Args:
-        request: FastAPI Request object containing transfer status
-        
-    Returns:
-        TwiML Response with fallback message
     """
     try:
         form = await request.form()
         session_id = request.query_params.get("session_id")
         dial_call_status = form.get("DialCallStatus", "unknown")
-        
+
         # Log the transfer failure
         call_id = None
         if session_id and session_id in sessions:
             call_id = sessions[session_id].get("call_id")
         if call_id:
             log_final_decision(call_id, f"transfer_failed_{dial_call_status}")
-        
-        # Provide fallback message
-        twiml = '''
-        <Response>
-            <Say voice="polly.justin">Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.</Say>
-        </Response>
-        '''
+
+        # Only play fallback message if transfer failed
+        if dial_call_status == "completed":
+            # Call was answered and completed normally
+            twiml = '''
+            <Response>
+                <Hangup/>
+            </Response>
+            '''
+        else:
+            # Transfer failed (busy, no answer, etc.)
+            twiml = '''
+            <Response>
+                <Say voice="polly.justin">Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.</Say>
+                <Hangup/>
+            </Response>
+            '''
         return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
@@ -408,6 +411,7 @@ async def twilio_transfer_fallback(request: Request):
         twiml = '''
         <Response>
             <Say voice="polly.justin">Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible.</Say>
+            <Hangup/>
         </Response>
         '''
         return Response(content=twiml, media_type="application/xml")
