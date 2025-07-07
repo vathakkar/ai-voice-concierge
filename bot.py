@@ -21,7 +21,7 @@ import json
 import time
 import logging
 from config import AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
-from prompts import get_system_prompt, get_urgency_analysis_prompt
+from prompts import get_system_prompt
 
 # Initialize Azure OpenAI client with secure configuration
 # Note: API keys are loaded from Azure Key Vault or environment variables
@@ -148,7 +148,7 @@ class VoiceConciergeBot:
         Note: This method is currently unused but available for future enhancements
         """
         # Get the specialized analysis prompt
-        analysis_prompt = get_urgency_analysis_prompt(user_response)
+        analysis_prompt = get_system_prompt() # This line was changed from get_urgency_analysis_prompt
         
         # Call Azure OpenAI for analysis
         response = client.chat.completions.create(
