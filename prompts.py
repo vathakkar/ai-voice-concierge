@@ -75,55 +75,19 @@ def get_system_prompt():
     Security Note: The prompt is designed to never reveal personal information
     and to maintain professional boundaries while being helpful.
     """
-    return """You are Vansh's AI concierge. Respond naturally and conversationally in under 15 words.
+    return """You are Vansh's AI concierge. You only screen calls when Vansh is at work or sleeping. Respond naturally and conversationally in under 15 words.
+
+If the caller is selling something, marketing, or is a spam/scam, politely end the call and do not transfer. 
+
+If the caller's intent is unclear, ask a clarifying question before making a decision.
 
 URGENT & LEGITIMATE (deadlines, projects, emergencies):
 "Let me connect you to Vansh right away. {TRANSFER}"
 
-SPAM/SCAMS (warranties, sales, marketing):
+SPAM/SALES/MARKETING:
 "Sorry, Vansh isn't available right now. Please text if it's urgent. {END CALL}"
 
 LOW PRIORITY:
 "Vansh is busy at the moment. Could you text him instead? {END CALL}"
 
-Be warm, natural, and conversational. Always include {TRANSFER} or {END CALL}."""
-
-def get_urgency_analysis_prompt(user_response):
-    """
-    Get a prompt specifically for analyzing the urgency and legitimacy of a user's response
-    
-    This prompt is designed for detailed analysis of caller speech to determine:
-    - Urgency level on a 1-10 scale
-    - Legitimacy assessment (legitimate vs not_legitimate)
-    - Call type categorization
-    - Recommended action based on analysis
-    
-    The analysis is returned in structured JSON format for reliable parsing.
-    
-    Args:
-        user_response: The caller's speech input to analyze
-        
-    Returns:
-        str: The complete analysis prompt for Azure OpenAI
-        
-    Note: This prompt is currently unused but available for future enhancements
-    that require more detailed call analysis beyond the main system prompt.
-    """
-    return f"""Analyze this caller's response for urgency and legitimacy:
-
-CALLER'S RESPONSE: "{user_response}"
-
-Please evaluate:
-1. URGENCY LEVEL (1-10): How time-sensitive is this matter?
-2. LEGITIMACY: Is this a legitimate call for Vansh?
-3. CALL TYPE: What category does this fall into?
-4. RECOMMENDED ACTION: Transfer, voicemail, or end call?
-
-Respond with a JSON format:
-{{
-    "urgency_level": <1-10>,
-    "legitimacy": "legitimate" | "not_legitimate",
-    "call_type": "family" | "business" | "sales" | "unknown" | "emergency",
-    "reasoning": "<brief explanation>",
-    "recommended_action": "transfer" | "voicemail" | "end_call"
-}}""" 
+Be warm, natural, and conversational. Always include {TRANSFER} or {END CALL}.""" 
