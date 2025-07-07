@@ -20,7 +20,7 @@ or environment variables in development. Never hardcode sensitive information.
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
-from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number
+from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
 from bot import VoiceConciergeBot
 from config import REAL_PHONE_NUMBER
 import uuid
@@ -94,7 +94,7 @@ async def twilio_voice(request: Request):
         debug_logger.info(f"Exception contact detected: {exception_contact['contact_name']} ({exception_contact['phone_number']}) - transferring directly")
         
         # Log the direct transfer decision
-        log_final_decision(call_id, "transferred_exception")
+        log_final_decision(call_id, "transferred_exception", summary="Exception contact, direct transfer.", outcome="exception_transfer")
         
         # Transfer to real phone number
         twiml = f'''
@@ -321,7 +321,9 @@ async def twilio_process_ai(request: Request):
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
-                log_final_decision(call_id, "transferred")
+                # Generate summary (placeholder)
+                summary = f"Call transferred. User said: {user_speech[:100]}..."
+                log_final_decision(call_id, "transferred", summary=summary, outcome="transferred")
             return response
         
         # Handle end call decision
@@ -336,7 +338,9 @@ async def twilio_process_ai(request: Request):
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
-                log_final_decision(call_id, "completed")
+                # Generate summary (placeholder)
+                summary = f"Call ended. User said: {user_speech[:100]}..."
+                log_final_decision(call_id, "completed", summary=summary, outcome="ended")
             return response
         
         # Continue conversation (no clear decision)

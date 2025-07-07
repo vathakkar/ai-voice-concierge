@@ -134,7 +134,7 @@ SQLITE_DB_PATH=calls.db
    - **AI Processing**: The caller's speech is sent to `/twilio/ai-response`, which uses Azure OpenAI to generate a natural, conversational response.
    - **Screening & Action**: The AI classifies the call and takes action:
      - **Transfer**: For urgent/legitimate calls, uses `{TRANSFER}` command to transfer to the real phone number
-     - **End Call**: For non-urgent calls, ends call after AI response with suggestion to text if urgent
+   - **End Call**: For non-urgent calls, ends call after AI response with suggestion to text if urgent
 5. **Logging**: Every interaction is logged in the Azure SQL Database with timing information.
 6. **Review**: Recent conversations can be viewed via the `/conversations` endpoint.
 
