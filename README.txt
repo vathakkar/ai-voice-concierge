@@ -17,6 +17,36 @@ This project is a production-ready AI Voice Concierge system that answers phone 
 
 ---
 
+## Safe Deployment Workflow (Test Before Prod)
+
+To ensure only working builds reach production, use the `deploy_test.sh` script:
+
+- **Local Build & Test:**
+  - Builds the Docker image locally (ARM/native arch).
+  - Runs the container locally with your `.env` file for all required environment variables.
+  - Health-checks the running container (by default, curls the root endpoint).
+  - If the local build or test fails, the script prints the error and aborts—nothing is pushed to production.
+- **Production Deploy:**
+  - If the local test passes, the script builds the image for `amd64`, pushes to Azure Container Registry, and updates your Azure App Service.
+  - Uses the same environment variable pattern as production for consistency.
+
+**Usage:**
+```sh
+export $(cat .env | grep -E '^(APP_NAME|RESOURCE_GROUP|ACR_NAME|IMAGE_NAME|ACR_USERNAME|ACR_PASSWORD)=' | xargs) && ./deploy_test.sh
+```
+Or simply:
+```sh
+./deploy_test.sh
+```
+if your `.env` file is present and contains the required variables.
+
+**Benefits:**
+- Prevents broken or misconfigured builds from reaching production.
+- Ensures all required secrets and environment variables are present for both local and prod.
+- Fast feedback loop for safe, reliable deployments.
+
+---
+
 ## Security & API Key Management
 
 ### ⚠️ CRITICAL SECURITY NOTES
@@ -306,156 +336,4 @@ Every call and conversation turn is logged in the Azure SQL Database (or SQLite 
 ---
 
 ## How to Review Conversations
-- Visit `https://your-app.azurewebsites.net/conversations` after a call to see logs.
-- Each entry includes all user and bot turns, timestamps, call metadata, and final decision.
-- Response timing information is logged for performance monitoring.
-
-## Managing Exception Phone Numbers
-
-### Using the Management Script
-The `add_exception.py` script provides an interactive way to manage your exception phone numbers:
-
-1. **Setup**: Ensure your `.env` file contains the `BASE_URL` variable:
-   ```bash
-   BASE_URL=https://your-app.azurewebsites.net
-   ```
-
-2. **Run the script**:
-   ```bash
-   python3 add_exception.py
-   ```
-
-3. **Interactive options**:
-   - Add new exception contacts
-   - List all current exceptions
-   - Check if a number is in the exception list
-   - Exit the program
-
-### Using API Endpoints Directly
-You can also manage exceptions using the REST API endpoints:
-
-**Add a contact**:
-```bash
-curl -X POST https://your-app.azurewebsites.net/exceptions \
-  -H "Content-Type: application/json" \
-  -d '{"phone_number": "+1234567890", "contact_name": "Mom", "category": "family"}'
-```
-
-**List all exceptions**:
-```bash
-curl https://your-app.azurewebsites.net/exceptions
-```
-
-**Check a number**:
-```bash
-curl https://your-app.azurewebsites.net/exceptions/check/+1234567890
-```
-
----
-
-## Phase 2: Exception Phone Numbers
-- **Direct Transfer**: Family, friends, and favorite contacts bypass AI screening
-- **Database Storage**: Exception phone numbers stored in Azure SQL Database
-- **Management API**: REST endpoints to add/remove/check exception phone numbers
-- **Categories**: Support for categorizing contacts (family, friends, work, etc.)
-- **Soft Delete**: Phone numbers can be deactivated without permanent deletion
-
-## Recent Optimizations
-- **Natural Language**: Updated system prompts for more conversational responses
-- **Performance**: Optimized for ~750ms response times with GPT-3.5-turbo
-- **Call Flow**: Simplified to transfer urgent calls, end non-urgent calls with text suggestion
-- **Fallback**: Added transfer failure handling with text suggestion
-- **Logging**: Enhanced timing logs for performance monitoring
-
----
-
-## Legacy/Unused Code
-- All Azure Communication Services (ACS) logic and endpoints have been removed.
-- Voicemail functionality has been removed in favor of text suggestions.
-- Only Twilio, Azure OpenAI, and Azure SQL code remains.
-
----
-
-## Security Best Practices
-
-### Code Security
-- ✅ No hardcoded secrets in codebase
-- ✅ Azure Key Vault integration for production
-- ✅ Environment variable fallback for development
-- ✅ Secure logging (no sensitive data in logs)
-- ✅ Input validation and error handling
-
-### Deployment Security
-- ✅ HTTPS enforcement in production
-- ✅ Managed identity for Azure services
-- ✅ Network security groups configured
-- ✅ Regular security updates
-- ✅ Monitoring and alerting
-
-### API Security
-- ✅ Secure API key management
-- ✅ Rate limiting (via Twilio)
-- ✅ Input sanitization
-- ✅ Error handling without information disclosure
-
----
-
-## Source of Truth
-- This README, the `prompts.py` system prompt, and the FastAPI endpoints are the canonical reference for how the system works.
-- For any changes, update this file and the relevant code.
-
----
-
-## Getting Started
-
-### Prerequisites
-- Python 3.8+
-- Azure subscription (for production deployment)
-- Twilio account with a phone number
-- Azure OpenAI resource
-
-### Quick Start
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/ai-voice-concierge.git
-   cd ai-voice-concierge
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up environment variables**:
-   - Copy `.env.example` to `.env` (if available)
-   - Or create a `.env` file with the required environment variables
-   - **Never commit your `.env` file to version control**
-
-4. **Run locally**:
-   ```bash
-   uvicorn main:app --reload
-   ```
-
-### Environment Variables Setup
-Create a `.env` file in the project root with the following variables:
-```bash
-# Azure OpenAI
-AZURE_OPENAI_KEY=your_key_here
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT=your_deployment
-
-# Twilio
-TWILIO_ACCOUNT_SID=your_account_sid
-TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_PHONE_NUMBER=+1234567890
-
-# Phone Configuration
-REAL_PHONE_NUMBER=+1234567890
-
-# Database (use SQLite for local development)
-USE_AZURE_SQL=false
-SQLITE_DB_PATH=calls.db
-```
-
-## Contact
-For questions or improvements, please open an issue or submit a pull request. 
+- Visit `https://your-app.azurewebsites.net/conversations`
