@@ -1,0 +1,31 @@
+# =============================================================================
+# AI Voice Concierge - Local Docker Container (SQLite only)
+# =============================================================================
+#
+# This Dockerfile is for local development and testing on ARM (e.g., Apple Silicon).
+# It does NOT install the Microsoft ODBC driver or pyodbc, so it uses SQLite only.
+#
+# Use this for local builds/tests. Use the main Dockerfile for production/amd64/Azure SQL.
+# =============================================================================
+
+# Use Python 3.11 slim image as base
+FROM python:3.11-slim
+
+# Set working directory in container
+WORKDIR /app
+
+# Copy requirements file first for better Docker layer caching
+COPY requirements.txt .
+
+# Remove ODBC/pyodbc installation steps; only install build tools and requirements
+RUN apt-get update && apt-get install -y gcc g++ gnupg2
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code to container
+COPY . .
+
+# Expose port 8000 for FastAPI application
+EXPOSE 8000
+
+# Start the FastAPI application using uvicorn
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"] 

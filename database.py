@@ -24,39 +24,17 @@ or environment variables, never hardcoded in the application.
 import os
 import sqlite3
 from datetime import datetime
-from config import SQLITE_DB_PATH, AZURE_SQL_CONNECTION_STRING
+from config import SQLITE_DB_PATH
 import re
 
-# Database configuration - determines which database to use
-# Set USE_AZURE_SQL=true in production, false for local development
-USE_AZURE_SQL = os.getenv('USE_AZURE_SQL', 'false').lower() == 'true'
+# Remove SQLite fallback logic and dependencies
+# Only use Azure SQL (pyodbc) for all database operations
 
 def get_connection():
     """
-    Get database connection based on configuration
-    
-    This function automatically selects the appropriate database:
-    - Production: Azure SQL Database with connection string from Key Vault
-    - Development: Local SQLite database
-    
-    Returns:
-        Database connection object (pyodbc for Azure SQL, sqlite3 for SQLite)
-        
-    Raises:
-        Exception: If connection cannot be established
+    Get a SQLite database connection (SQLite-only version)
     """
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        try:
-            # Production: Use Azure SQL Database
-            import pyodbc
-            return pyodbc.connect(AZURE_SQL_CONNECTION_STRING)
-        except ImportError:
-            # Fallback to SQLite if pyodbc is not installed
-            print("Warning: pyodbc not installed, falling back to SQLite")
-            return sqlite3.connect(SQLITE_DB_PATH)
-    else:
-        # Development: Use local SQLite database
-        return sqlite3.connect(SQLITE_DB_PATH)
+    return sqlite3.connect(SQLITE_DB_PATH)
 
 def init_db():
     """
@@ -75,136 +53,47 @@ def init_db():
     conn = get_connection()
     c = conn.cursor()
     
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        # Azure SQL Database schema (production)
-        # Note: Uses Azure SQL-specific syntax for table creation
-        
-        # Create calls table if it doesn't exist
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='calls' AND xtype='U')
-            CREATE TABLE calls (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                caller_id NVARCHAR(50),
-                start_time NVARCHAR(50),
-                end_time NVARCHAR(50),
-                final_decision NVARCHAR(50)
-            )
-        ''')
-        
-        # Create conversation table if it doesn't exist
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='conversation' AND xtype='U')
-            CREATE TABLE conversation (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                call_id INT,
-                turn_index INT,
-                speaker NVARCHAR(20),
-                text NVARCHAR(MAX),
-                timestamp NVARCHAR(50),
-                FOREIGN KEY(call_id) REFERENCES calls(id)
-            )
-        ''')
-        
-        # Create exception_phone_numbers table if it doesn't exist
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='exception_phone_numbers' AND xtype='U')
-            CREATE TABLE exception_phone_numbers (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                phone_number NVARCHAR(20) UNIQUE,
-                contact_name NVARCHAR(100),
-                category NVARCHAR(50),
-                added_date NVARCHAR(50),
-                is_active BIT DEFAULT 1
-            )
-        ''')
-        
-        # Create call_summaries table if it doesn't exist
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='call_summaries' AND xtype='U')
-            CREATE TABLE call_summaries (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                call_id INT,
-                caller_id NVARCHAR(50),
-                start_time NVARCHAR(50),
-                end_time NVARCHAR(50),
-                final_decision NVARCHAR(50),
-                summary NVARCHAR(MAX),
-                full_conversation NVARCHAR(MAX),
-                created_at NVARCHAR(50)
-            )
-        ''')
-        
-        # Add columns if not exist (Azure SQL)
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'summary' AND Object_ID = Object_ID(N'calls'))
-            ALTER TABLE calls ADD summary NVARCHAR(MAX) NULL
-        ''')
-        c.execute('''
-            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'outcome' AND Object_ID = Object_ID(N'calls'))
-            ALTER TABLE calls ADD outcome NVARCHAR(50) NULL
-        ''')
-    else:
-        # SQLite schema (development)
-        # Note: Uses SQLite-specific syntax for table creation
-        
-        # Create calls table if it doesn't exist
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS calls (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                caller_id TEXT,
-                start_time TEXT,
-                end_time TEXT,
-                final_decision TEXT
-            )
-        ''')
-        
-        # Create conversation table if it doesn't exist
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS conversation (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                call_id INTEGER,
-                turn_index INTEGER,
-                speaker TEXT,
-                text TEXT,
-                timestamp TEXT,
-                FOREIGN KEY(call_id) REFERENCES calls(id)
-            )
-        ''')
-        
-        # Create exception_phone_numbers table if it doesn't exist
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS exception_phone_numbers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                phone_number TEXT UNIQUE,
-                contact_name TEXT,
-                category TEXT,
-                added_date TEXT,
-                is_active INTEGER DEFAULT 1
-            )
-        ''')
-        
-        # Create call_summaries table if it doesn't exist
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS call_summaries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                call_id INTEGER,
-                caller_id TEXT,
-                start_time TEXT,
-                end_time TEXT,
-                final_decision TEXT,
-                summary TEXT,
-                full_conversation TEXT,
-                created_at TEXT
-            )
-        ''')
-        
-        # Add columns if not exist (SQLite)
-        c.execute("PRAGMA table_info(calls)")
-        columns = [row[1] for row in c.fetchall()]
-        if 'summary' not in columns:
-            c.execute('ALTER TABLE calls ADD COLUMN summary TEXT')
-        if 'outcome' not in columns:
-            c.execute('ALTER TABLE calls ADD COLUMN outcome TEXT')
+    # Create calls table if it doesn't exist
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            caller_id TEXT,
+            start_time TEXT,
+            end_time TEXT,
+            final_decision TEXT,
+            summary TEXT,
+            outcome TEXT
+        )
+    ''')
+    
+    # Create conversation table if it doesn't exist
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS conversation (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            call_id INTEGER,
+            turn_index INTEGER,
+            speaker TEXT,
+            text TEXT,
+            timestamp TEXT,
+            FOREIGN KEY(call_id) REFERENCES calls(id)
+        )
+    ''')
+    
+    # Create exception_phone_numbers table if it doesn't exist
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS exception_phone_numbers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            phone_number TEXT UNIQUE,
+            contact_name TEXT,
+            category TEXT,
+            added_date TEXT,
+            is_active INTEGER DEFAULT 1
+        )
+    ''')
+    
+    # Remove T-SQL IF statements for adding columns; ensure all columns are present in CREATE TABLE
+    # (No ALTER TABLE IF NOT EXISTS ... in SQLite)
+    # The 'calls' table already includes 'summary' and 'outcome' columns in CREATE TABLE above.
     
     # Commit the schema changes
     conn.commit()
@@ -231,14 +120,9 @@ def log_new_call(caller_id):
     # Record the call start time in ISO format
     start_time = datetime.utcnow().isoformat()
     
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        # Azure SQL: Insert and get the generated ID
-        c.execute('INSERT INTO calls (caller_id, start_time) VALUES (?, ?)', (caller_id, start_time))
-        c.execute('SELECT SCOPE_IDENTITY()')
-    else:
-        # SQLite: Insert and get the last inserted row ID
-        c.execute('INSERT INTO calls (caller_id, start_time) VALUES (?, ?)', (caller_id, start_time))
-        c.execute('SELECT last_insert_rowid()')
+    # Azure SQL: Insert and get the generated ID
+    c.execute('INSERT INTO calls (caller_id, start_time) VALUES (?, ?)', (caller_id, start_time))
+    c.execute('SELECT SCOPE_IDENTITY()')
     
     # Get the call ID and return it
     call_id = c.fetchone()[0]
@@ -289,14 +173,9 @@ def log_final_decision(call_id, final_decision, summary=None, outcome=None):
     conn = get_connection()
     c = conn.cursor()
     
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            UPDATE calls SET end_time = ?, final_decision = ?, summary = ?, outcome = ? WHERE id = ?
-        ''', (datetime.utcnow().isoformat(), final_decision, summary, outcome, call_id))
-    else:
-        c.execute('''
-            UPDATE calls SET end_time = ?, final_decision = ?, summary = ?, outcome = ? WHERE id = ?
-        ''', (datetime.utcnow().isoformat(), final_decision, summary, outcome, call_id))
+    c.execute('''
+        UPDATE calls SET end_time = ?, final_decision = ?, summary = ?, outcome = ? WHERE id = ?
+    ''', (datetime.utcnow().isoformat(), final_decision, summary, outcome, call_id))
     conn.commit()
     conn.close()
 
@@ -415,18 +294,11 @@ def is_exception_phone_number(phone_number):
     conn = get_connection()
     c = conn.cursor()
     normalized_number = normalize_phone_number(phone_number)
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            SELECT id, phone_number, contact_name, category, added_date
-            FROM exception_phone_numbers
-            WHERE phone_number = ? AND is_active = 1
-        ''', (normalized_number,))
-    else:
-        c.execute('''
-            SELECT id, phone_number, contact_name, category, added_date
-            FROM exception_phone_numbers
-            WHERE phone_number = ? AND is_active = 1
-        ''', (normalized_number,))
+    c.execute('''
+        SELECT id, phone_number, contact_name, category, added_date
+        FROM exception_phone_numbers
+        WHERE phone_number = ? AND is_active = 1
+    ''', (normalized_number,))
     row = c.fetchone()
     conn.close()
     if row:
@@ -459,24 +331,15 @@ def add_exception_phone_number(phone_number, contact_name, category="family"):
     conn = get_connection()
     c = conn.cursor()
     normalized_number = normalize_phone_number(phone_number)
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
-    else:
-        c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
+    c.execute('SELECT id FROM exception_phone_numbers WHERE phone_number = ?', (normalized_number,))
     if c.fetchone():
         conn.close()
         return False
     added_date = datetime.utcnow().isoformat()
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
-            VALUES (?, ?, ?, ?, 1)
-        ''', (normalized_number, contact_name, category, added_date))
-    else:
-        c.execute('''
-            INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
-            VALUES (?, ?, ?, ?, 1)
-        ''', (normalized_number, contact_name, category, added_date))
+    c.execute('''
+        INSERT INTO exception_phone_numbers (phone_number, contact_name, category, added_date, is_active)
+        VALUES (?, ?, ?, ?, 1)
+    ''', (normalized_number, contact_name, category, added_date))
     conn.commit()
     conn.close()
     return True
@@ -499,18 +362,11 @@ def remove_exception_phone_number(phone_number):
     conn = get_connection()
     c = conn.cursor()
     normalized_number = normalize_phone_number(phone_number)
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            UPDATE exception_phone_numbers 
-            SET is_active = 0 
-            WHERE phone_number = ?
-        ''', (normalized_number,))
-    else:
-        c.execute('''
-            UPDATE exception_phone_numbers 
-            SET is_active = 0 
-            WHERE phone_number = ?
-        ''', (normalized_number,))
+    c.execute('''
+        UPDATE exception_phone_numbers 
+        SET is_active = 0 
+        WHERE phone_number = ?
+    ''', (normalized_number,))
     rows_affected = c.rowcount
     conn.commit()
     conn.close()
@@ -530,20 +386,12 @@ def get_all_exception_phone_numbers():
     conn = get_connection()
     c = conn.cursor()
     
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            SELECT id, phone_number, contact_name, category, added_date
-            FROM exception_phone_numbers
-            WHERE is_active = 1
-            ORDER BY contact_name ASC
-        ''')
-    else:
-        c.execute('''
-            SELECT id, phone_number, contact_name, category, added_date
-            FROM exception_phone_numbers
-            WHERE is_active = 1
-            ORDER BY contact_name ASC
-        ''')
+    c.execute('''
+        SELECT id, phone_number, contact_name, category, added_date
+        FROM exception_phone_numbers
+        WHERE is_active = 1
+        ORDER BY contact_name ASC
+    ''')
     
     rows = c.fetchall()
     conn.close()
@@ -564,30 +412,10 @@ def get_all_exception_phone_numbers():
 def update_call_summary_and_outcome(call_id, summary, outcome):
     conn = get_connection()
     c = conn.cursor()
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
-        ''', (summary, outcome, call_id))
-    else:
-        c.execute('''
-            UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
-        ''', (summary, outcome, call_id))
+    c.execute('''
+        UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
+    ''', (summary, outcome, call_id))
     conn.commit()
     conn.close() 
 
-def log_call_summary(call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation):
-    conn = get_connection()
-    c = conn.cursor()
-    created_at = datetime.utcnow().isoformat()
-    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
-        c.execute('''
-            INSERT INTO call_summaries (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at))
-    else:
-        c.execute('''
-            INSERT INTO call_summaries (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at))
-    conn.commit()
-    conn.close() 
+# Remove log_call_summary and all call_summaries table logic 

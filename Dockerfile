@@ -30,8 +30,8 @@ WORKDIR /app
 # This allows Docker to cache the pip install step if requirements.txt hasn't changed
 COPY requirements.txt .
 
-# Install Python dependencies
-# --no-cache-dir reduces image size by not caching pip packages
+# Remove ODBC/pyodbc installation steps; only install build tools and requirements
+RUN apt-get update && apt-get install -y gcc g++ gnupg2
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code to container
