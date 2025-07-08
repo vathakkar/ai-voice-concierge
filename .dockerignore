@@ -1,0 +1,46 @@
+# ... existing code ...
+README-SECURE.md
+.env
+# Exclude logs and temp files
+logs/
+logs_latest/
+LogFiles/
+*.log
+*.zip
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+
+# Exclude test and dev scripts
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+test_*.py
+*_test.py
+tests/
+add_exception_simple.py
+test_exception.py
+get_recent_logs.sh
+deploy.sh
+
+# Exclude documentation and markdown files not needed in container
+README.txt
+DEPLOYMENT.md
+README-SECURE.md
+
+# Exclude version control and IDE files
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Exclude other config and backup files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Only include what is needed for the app to run 

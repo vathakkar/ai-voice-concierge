@@ -118,6 +118,22 @@ def init_db():
             )
         ''')
         
+        # Create call_summaries table if it doesn't exist
+        c.execute('''
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='call_summaries' AND xtype='U')
+            CREATE TABLE call_summaries (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                call_id INT,
+                caller_id NVARCHAR(50),
+                start_time NVARCHAR(50),
+                end_time NVARCHAR(50),
+                final_decision NVARCHAR(50),
+                summary NVARCHAR(MAX),
+                full_conversation NVARCHAR(MAX),
+                created_at NVARCHAR(50)
+            )
+        ''')
+        
         # Add columns if not exist (Azure SQL)
         c.execute('''
             IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'summary' AND Object_ID = Object_ID(N'calls'))
@@ -164,6 +180,21 @@ def init_db():
                 category TEXT,
                 added_date TEXT,
                 is_active INTEGER DEFAULT 1
+            )
+        ''')
+        
+        # Create call_summaries table if it doesn't exist
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS call_summaries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                call_id INTEGER,
+                caller_id TEXT,
+                start_time TEXT,
+                end_time TEXT,
+                final_decision TEXT,
+                summary TEXT,
+                full_conversation TEXT,
+                created_at TEXT
             )
         ''')
         
@@ -541,5 +572,22 @@ def update_call_summary_and_outcome(call_id, summary, outcome):
         c.execute('''
             UPDATE calls SET summary = ?, outcome = ? WHERE id = ?
         ''', (summary, outcome, call_id))
+    conn.commit()
+    conn.close() 
+
+def log_call_summary(call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation):
+    conn = get_connection()
+    c = conn.cursor()
+    created_at = datetime.utcnow().isoformat()
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('''
+            INSERT INTO call_summaries (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at))
+    else:
+        c.execute('''
+            INSERT INTO call_summaries (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation, created_at))
     conn.commit()
     conn.close() 
