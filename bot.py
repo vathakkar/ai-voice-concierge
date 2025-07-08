@@ -120,7 +120,11 @@ class VoiceConciergeBot:
         
         # Extract the generated response
         reply = response.choices[0].message.content
-        
+
+        # Remove unwanted tags from the response
+        for tag in ["{CLARIFYING QUESTION}", "{TROLLING}"]:
+            reply = reply.replace(tag, "")
+
         # Add the response to conversation history
         self.add_bot_message(reply)
         
