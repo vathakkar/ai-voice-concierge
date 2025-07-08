@@ -186,10 +186,24 @@ This setup ensures you are not disturbed by non-urgent calls and only answer tho
 
 ---
 
+## Logging
+Every call and conversation turn is logged in the Azure SQL Database (or SQLite for development). 
+
+### NEW: Asynchronous Post-Call Logging
+- After each call ends (transfer, end, or exception), the system asynchronously logs a summary and the full conversation to the `call_summaries` table.
+- This logging is non-blocking and does not delay the Twilio response, ensuring fast call handling.
+- The summary includes:
+  - Call metadata (caller ID, start/end time, final decision, summary)
+  - The entire conversation (all user and bot turns, as JSON)
+- This enables robust post-call analytics, auditing, and review without impacting call latency.
+
+---
+
 ## Database Schema
-- **calls**: One row per call (caller_id, start_time, end_time, final_decision)
+- **calls**: One row per call (caller_id, start_time, end_time, final_decision, summary, outcome)
 - **conversation**: One row per turn (call_id, turn_index, speaker, text, timestamp)
 - **exception_phone_numbers**: Family/friends/favorite contacts that bypass AI screening
+- **call_summaries**: One row per call, asynchronously logged after call ends. Includes call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation (JSON), created_at.
 - **final_decision values**: "transferred", "completed", "ended_no_speech", "transferred_exception"
 - Schema is auto-created on first run if missing.
 

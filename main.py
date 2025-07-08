@@ -20,7 +20,7 @@ or environment variables in development. Never hardcode sensitive information.
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
-from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
+from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome, log_call_summary
 from bot import VoiceConciergeBot
 from config import REAL_PHONE_NUMBER
 import uuid
@@ -95,6 +95,7 @@ async def twilio_voice(request: Request):
         
         # Log the direct transfer decision
         log_final_decision(call_id, "transferred_exception", summary="Exception contact, direct transfer.", outcome="exception_transfer")
+        asyncio.create_task(async_log_call_summary(call_id))
         
         # Transfer to real phone number
         twiml = f'''
@@ -223,6 +224,7 @@ async def twilio_ai_response(request: Request):
                 '''
                 if call_id:
                     log_final_decision(call_id, "ended_no_speech")
+                    asyncio.create_task(async_log_call_summary(call_id))
                 return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
@@ -324,6 +326,7 @@ async def twilio_process_ai(request: Request):
                 # Generate summary (placeholder)
                 summary = f"Call transferred. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "transferred", summary=summary, outcome="transferred")
+                asyncio.create_task(async_log_call_summary(call_id))
             return response
         
         # Handle end call decision
@@ -341,6 +344,7 @@ async def twilio_process_ai(request: Request):
                 # Generate summary (placeholder)
                 summary = f"Call ended. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "completed", summary=summary, outcome="ended")
+                asyncio.create_task(async_log_call_summary(call_id))
             return response
         
         # Continue conversation (no clear decision)
@@ -380,14 +384,15 @@ async def twilio_transfer_fallback(request: Request):
         form = await request.form()
         session_id = request.query_params.get("session_id")
         dial_call_status = form.get("DialCallStatus", "unknown")
-
+        
         # Log the transfer failure
         call_id = None
         if session_id and session_id in sessions:
             call_id = sessions[session_id].get("call_id")
         if call_id:
             log_final_decision(call_id, f"transfer_failed_{dial_call_status}")
-
+            asyncio.create_task(async_log_call_summary(call_id))
+        
         # Only play fallback message if transfer failed
         if dial_call_status == "completed":
             # Call was answered and completed normally
@@ -398,12 +403,12 @@ async def twilio_transfer_fallback(request: Request):
             '''
         else:
             # Transfer failed (busy, no answer, etc.)
-            twiml = '''
-            <Response>
-                <Say voice="polly.justin">Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.</Say>
+        twiml = '''
+        <Response>
+            <Say voice="polly.justin">Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.</Say>
                 <Hangup/>
-            </Response>
-            '''
+        </Response>
+        '''
         return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
@@ -565,3 +570,39 @@ async def check_exception_phone_number(phone_number: str):
     except Exception as e:
         debug_logger.error(f"Error checking exception phone number: {e}")
         return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
+
+async def async_log_call_summary(call_id):
+    """
+    Asynchronously log call summary and decision to call_summaries table after call ends.
+    """
+    # Gather call metadata and conversation
+    from database import get_connection, USE_AZURE_SQL, AZURE_SQL_CONNECTION_STRING
+    import json
+    conn = get_connection()
+    c = conn.cursor()
+    # Get call metadata
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('SELECT id, caller_id, start_time, end_time, final_decision, summary FROM calls WHERE id = ?', (call_id,))
+    else:
+        c.execute('SELECT id, caller_id, start_time, end_time, final_decision, summary FROM calls WHERE id = ?', (call_id,))
+    call_row = c.fetchone()
+    if not call_row:
+        conn.close()
+        return
+    call_id, caller_id, start_time, end_time, final_decision, summary = call_row
+    # Get full conversation
+    if USE_AZURE_SQL and AZURE_SQL_CONNECTION_STRING:
+        c.execute('SELECT turn_index, speaker, text, timestamp FROM conversation WHERE call_id = ? ORDER BY turn_index ASC', (call_id,))
+    else:
+        c.execute('SELECT turn_index, speaker, text, timestamp FROM conversation WHERE call_id = ? ORDER BY turn_index ASC', (call_id,))
+    conversation_rows = c.fetchall()
+    full_conversation = [
+        {"turn_index": row[0], "speaker": row[1], "text": row[2], "timestamp": row[3]} for row in conversation_rows
+    ]
+    conn.close()
+    # Serialize conversation as JSON
+    full_conversation_json = json.dumps(full_conversation)
+    # Call the sync DB function in a thread to avoid blocking
+    import asyncio
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, log_call_summary, call_id, caller_id, start_time, end_time, final_decision, summary, full_conversation_json) 
