@@ -72,4 +72,27 @@ echo "Updating Azure App Service to use new image..."
 az webapp config container set --name $APP_NAME --resource-group $RESOURCE_GROUP --docker-custom-image-name $ACR_IMAGE
 az webapp restart --name $APP_NAME --resource-group $RESOURCE_GROUP
 
-echo "Deployment complete!" 
+echo "Deployment complete!"
+
+# --- Post-deployment health check ---
+APP_URL="https://${APP_NAME}.azurewebsites.net/"
+echo "Waiting for app to start..."
+sleep 20
+
+HEALTH_RESPONSE=$(curl -s -m 10 "$APP_URL")
+if echo "$HEALTH_RESPONSE" | grep -qi 'healthy'; then
+  echo "Production health check passed! App is running: $APP_URL"
+else
+  echo "Production health check failed!"
+  echo "App response: $HEALTH_RESPONSE"
+  echo "Fetching last 100 lines of logs for debugging using get_recent_logs.sh..."
+  ./get_recent_logs.sh
+  LATEST_LOG=$(ls -t logs/LogFiles/*docker.log 2>/dev/null | head -n1)
+  if [ -f "$LATEST_LOG" ]; then
+    echo "--- Last 100 lines of $LATEST_LOG ---"
+    tail -n 100 "$LATEST_LOG"
+  else
+    echo "No docker log file found."
+  fi
+  exit 2
+fi 
