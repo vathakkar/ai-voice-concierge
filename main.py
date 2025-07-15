@@ -18,24 +18,21 @@ Security Note: All API keys and secrets are loaded from Azure Key Vault in produ
 or environment variables in development. Never hardcode sensitive information.
 """
 
+import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
 from bot import VoiceConciergeBot
 from config import REAL_PHONE_NUMBER
 import uuid
-import logging
-from fastapi.staticfiles import StaticFiles
 import time
 import asyncio
+import traceback
 
 # Initialize FastAPI application
 app = FastAPI(title="AI Voice Concierge", description="AI-powered phone call screening system")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Configure logging for debugging and monitoring
-logging.basicConfig(level=logging.INFO)
-debug_logger = logging.getLogger("debug")
 
 # Global session storage for call state management
 # Note: In production, consider using Redis or database for session persistence
@@ -91,11 +88,7 @@ async def twilio_voice(request: Request):
     
     if exception_contact:
         # Caller is in exception list - transfer directly without AI screening
-        debug_logger.info(f"Exception contact detected: {exception_contact['contact_name']} ({exception_contact['phone_number']}) - transferring directly")
-        
-        # Log the direct transfer decision
         log_final_decision(call_id, "transferred_exception", summary="Exception contact, direct transfer.", outcome="exception_transfer")
-        
         # Transfer to real phone number
         twiml = f'''
         <Response>
@@ -103,11 +96,9 @@ async def twilio_voice(request: Request):
             <Dial>{REAL_PHONE_NUMBER}</Dial>
         </Response>
         '''
-        
         return Response(content=twiml, media_type="application/xml")
     
     # Caller is not in exception list - proceed with normal AI screening
-    debug_logger.info(f"Regular caller detected: {caller_id} - proceeding with AI screening")
     
     # Generate unique session ID for this call
     session_id = str(uuid.uuid4())
@@ -158,21 +149,13 @@ async def twilio_ai_response(request: Request):
     try:
         # Extract form data from Twilio
         form = await request.form()
-        debug_logger.info(f"/twilio/ai-response form: {dict(form)}")
         
         # Get speech result from Twilio
         user_speech = form.get("SpeechResult", "")
-        debug_logger.info(f"/twilio/ai-response user_speech: '{user_speech}'")
         
         # Get session ID and retry count from query parameters
         session_id = request.query_params.get("session_id")
         retry = int(request.query_params.get("retry", "0"))
-        
-        # Debug logging for session management
-        debug_logger.info(f"/twilio/ai-response session_id: {session_id}")
-        debug_logger.info(f"/twilio/ai-response all session keys: {list(sessions.keys())}")
-        if session_id in sessions:
-            debug_logger.info(f"/twilio/ai-response session contents: {sessions[session_id]}")
         
         # Handle missing or invalid session by creating a new one
         if not session_id or session_id not in sessions:
@@ -226,10 +209,9 @@ async def twilio_ai_response(request: Request):
                 return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
-        debug_logger.error(f"Error in twilio_ai_response: {e}")
         twiml = '''
         <Response>
-            <Say voice="polly.justin">Sorry, there was an error. Goodbye!</Say>
+            <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR01</Say>
         </Response>
         '''
         return Response(content=twiml, media_type="application/xml")
@@ -254,39 +236,28 @@ async def twilio_process_ai(request: Request):
     try:
         start_time = time.time()
         form = await request.form()
-        debug_logger.info(f"/twilio/process-ai form: {dict(form)}")
-        
-        # Get session information
         session_id = request.query_params.get("session_id")
-        debug_logger.info(f"/twilio/process-ai session_id: {session_id}")
-        debug_logger.info(f"/twilio/process-ai all session keys: {list(sessions.keys())}")
-        if session_id in sessions:
-            debug_logger.info(f"/twilio/process-ai session contents: {sessions[session_id]}")
-        
-        # Retrieve stored speech from session
+        print("[DEBUG] /twilio/process-ai called. session_id:", session_id)
+        print("[DEBUG] Current session keys:", list(sessions.keys()))
         user_speech = None
         if session_id and session_id in sessions:
             session = sessions[session_id]
             user_speech = session.pop("pending_speech", None)
-        debug_logger.info(f"/twilio/process-ai user_speech: '{user_speech}'")
-        
-        # Handle missing session
+        print("[DEBUG] user_speech:", user_speech)
         if not session_id or session_id not in sessions:
+            print("[DEBUG] ERR02: Missing or invalid session_id:", session_id)
             twiml = '''
             <Response>
-                <Say voice="polly.justin">Sorry, there was an error. Goodbye!</Say>
+                <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
             </Response>
             '''
             return Response(content=twiml, media_type="application/xml")
-        
-        # Get session data
         session = sessions[session_id]
         bot = session["bot"]
         turn_index = session["turn_index"]
         call_id = session.get("call_id")
-        
-        # Validate speech input
         if not user_speech or not user_speech.strip():
+            print("[DEBUG] No user speech detected, prompting for repeat.")
             action_url = f"/twilio/ai-response?session_id={session_id}&retry=1".replace("&", "&amp;")
             twiml = f'''
             <Response>
@@ -297,17 +268,23 @@ async def twilio_process_ai(request: Request):
             </Response>
             '''
             return Response(content=twiml, media_type="application/xml")
-        
-        # Process speech with AI and log timing
-        ai_start = time.time()
-        bot.add_user_message(user_speech)
-        session["turn_index"] += 1
-        ai_reply = bot.get_response()
-        ai_time = time.time() - ai_start
-        total_time = time.time() - start_time
-        debug_logger.info(f"AI response time: {ai_time:.3f}s, Total process-ai time: {total_time:.3f}s")
-        
-        # Handle transfer decision
+        try:
+            ai_start = time.time()
+            bot.add_user_message(user_speech)
+            session["turn_index"] += 1
+            print("[DEBUG] Calling bot.get_response()...")
+            ai_reply = bot.get_response()
+            ai_time = time.time() - ai_start
+            total_time = time.time() - start_time
+            print("[DEBUG] AI response time:", ai_time, "Total process-ai time:", total_time)
+        except Exception as ai_e:
+            print("[DEBUG] ERR02: Exception in bot.get_response():", ai_e)
+            twiml = '''
+            <Response>
+                <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
+            </Response>
+            '''
+            return Response(content=twiml, media_type="application/xml")
         if "{TRANSFER}" in ai_reply:
             clean_reply = ai_reply.replace("{TRANSFER}", "").strip()
             fallback_url = f"/twilio/transfer-fallback?session_id={session_id}".replace("&", "&amp;")
@@ -321,12 +298,9 @@ async def twilio_process_ai(request: Request):
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
-                # Generate summary (placeholder)
                 summary = f"Call transferred. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "transferred", summary=summary, outcome="transferred")
             return response
-        
-        # Handle end call decision
         elif "{END CALL}" in ai_reply:
             clean_reply = ai_reply.replace("{END CALL}", "").strip()
             twiml = f'''
@@ -338,12 +312,9 @@ async def twilio_process_ai(request: Request):
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
-                # Generate summary (placeholder)
                 summary = f"Call ended. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "completed", summary=summary, outcome="ended")
             return response
-        
-        # Continue conversation (no clear decision)
         else:
             action_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
             twiml = f'''
@@ -360,11 +331,10 @@ async def twilio_process_ai(request: Request):
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
             return response
     except Exception as e:
-        # Handle any errors gracefully
-        debug_logger.error(f"Error in twilio_process_ai: {e}")
+        print("[DEBUG] ERR02: General exception in /twilio/process-ai:", e)
         twiml = '''
         <Response>
-            <Say voice="polly.justin">Sorry, there was an error. Goodbye!</Say>
+            <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
         </Response>
         '''
         return Response(content=twiml, media_type="application/xml")
@@ -407,10 +377,9 @@ async def twilio_transfer_fallback(request: Request):
         return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
-        debug_logger.error(f"Error in twilio_transfer_fallback: {e}")
         twiml = '''
         <Response>
-            <Say voice="polly.justin">Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible.</Say>
+            <Say voice="polly.justin">Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible. Error code: ERR03</Say>
             <Hangup/>
         </Response>
         '''
@@ -460,7 +429,7 @@ async def get_exception_phone_numbers():
         exceptions = get_all_exception_phone_numbers()
         return JSONResponse(content={"exceptions": exceptions, "count": len(exceptions)})
     except Exception as e:
-        debug_logger.error(f"Error getting exception phone numbers: {e}")
+        logging.error(f"Error getting exception phone numbers: {e}")
         return JSONResponse(content={"error": "Failed to retrieve exception phone numbers"}, status_code=500)
 
 @app.post("/exceptions")
@@ -503,7 +472,7 @@ async def add_exception_phone_number(request: Request):
             )
             
     except Exception as e:
-        debug_logger.error(f"Error adding exception phone number: {e}")
+        logging.error(f"Error adding exception phone number: {e}")
         return JSONResponse(content={"error": "Failed to add exception phone number"}, status_code=500)
 
 @app.delete("/exceptions/{phone_number}")
@@ -535,7 +504,7 @@ async def remove_exception_phone_number(phone_number: str):
             )
             
     except Exception as e:
-        debug_logger.error(f"Error removing exception phone number: {e}")
+        logging.error(f"Error removing exception phone number: {e}")
         return JSONResponse(content={"error": "Failed to remove exception phone number"}, status_code=500)
 
 @app.get("/exceptions/check/{phone_number}")
@@ -563,7 +532,7 @@ async def check_exception_phone_number(phone_number: str):
             return JSONResponse(content={"found": False, "contact": None})
             
     except Exception as e:
-        debug_logger.error(f"Error checking exception phone number: {e}")
+        logging.error(f"Error checking exception phone number: {e}")
         return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
 
 # Remove all calls to async_log_call_summary and its definition 

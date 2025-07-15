@@ -22,6 +22,16 @@ from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 import logging
 
+# Dump all environment variables at startup for debugging
+logging.basicConfig(level=logging.INFO)
+logging.info("==== ENVIRONMENT VARIABLES AT STARTUP ====")
+for k, v in os.environ.items():
+    if 'PASSWORD' in k or 'KEY' in k or 'SECRET' in k:
+        logging.info(f"{k}=***MASKED***")
+    else:
+        logging.info(f"{k}={v}")
+logging.info("==== END ENVIRONMENT VARIABLES DUMP ====")
+
 # Load environment variables from .env file (for local development)
 # Note: .env file should be in .gitignore and never committed
 load_dotenv()
@@ -49,11 +59,13 @@ def get_secret_from_keyvault(secret_name, fallback_env_var=None):
         # Check if we're running in Azure App Service
         if os.getenv('WEBSITE_SITE_NAME'):
             # Production: Use Azure Key Vault with managed identity
+            logging.info(f"Running in Azure App Service, attempting to retrieve '{secret_name}' from Key Vault")
             credential = DefaultAzureCredential()
             vault_url = f"https://ai-concierge-vault.vault.azure.net/"
             client = SecretClient(vault_url=vault_url, credential=credential)
             secret = client.get_secret(secret_name)
             logging.info(f"Successfully retrieved secret '{secret_name}' from Azure Key Vault")
+            logging.info(f"Secret value length: {len(secret.value) if secret.value else 0}")
             return secret.value
         else:
             # Development: Use environment variables
@@ -61,6 +73,7 @@ def get_secret_from_keyvault(secret_name, fallback_env_var=None):
             value = os.getenv(env_var)
             if value:
                 logging.info(f"Retrieved '{secret_name}' from environment variable '{env_var}'")
+                logging.info(f"Environment variable value length: {len(value)}")
             else:
                 logging.warning(f"Environment variable '{env_var}' not found for secret '{secret_name}'")
             return value
@@ -72,6 +85,9 @@ def get_secret_from_keyvault(secret_name, fallback_env_var=None):
         value = os.getenv(env_var)
         if value:
             logging.info(f"Using fallback environment variable '{env_var}' for '{secret_name}'")
+            logging.info(f"Fallback value length: {len(value)}")
+        else:
+            logging.error(f"Both Key Vault and fallback environment variable '{env_var}' failed for '{secret_name}'")
         return value
 
 # =============================================================================
@@ -119,6 +135,10 @@ AZURE_SQL_CONNECTION_STRING = get_secret_from_keyvault('AZURE-SQL-CONNECTION-STR
 # LOCAL DEVELOPMENT CONFIGURATION
 # =============================================================================
 # Configuration for local development and testing
+
+# Database mode configuration
+# Set to 'true' to use Azure SQL in production, 'false' for SQLite in development
+USE_AZURE_SQL = os.getenv('USE_AZURE_SQL', 'false').lower() == 'true'
 
 # SQLite database path for local development
 # Note: In production, USE_AZURE_SQL should be set to 'true'

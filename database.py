@@ -33,8 +33,37 @@ import re
 def get_connection():
     """
     Get a SQLite database connection (SQLite-only version)
+    Enables WAL mode for better concurrency.
     """
-    return sqlite3.connect(SQLITE_DB_PATH)
+    conn = sqlite3.connect(SQLITE_DB_PATH)
+    try:
+        conn.execute('PRAGMA journal_mode=WAL;')
+    except Exception:
+        pass  # Ignore if not supported
+    return conn
+
+import time
+import sqlite3
+
+# Retry decorator for database locked errors
+from functools import wraps
+
+def retry_on_locked(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        retries = 5
+        delay = 0.2
+        for i in range(retries):
+            try:
+                return fn(*args, **kwargs)
+            except sqlite3.OperationalError as e:
+                if 'database is locked' in str(e):
+                    time.sleep(delay)
+                    delay *= 2
+                else:
+                    raise
+        raise sqlite3.OperationalError('Database is locked after multiple retries')
+    return wrapper
 
 def init_db():
     """
@@ -99,6 +128,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+@retry_on_locked
 def log_new_call(caller_id):
     """
     Log a new call and return its ID
@@ -122,14 +152,12 @@ def log_new_call(caller_id):
     
     # Azure SQL: Insert and get the generated ID
     c.execute('INSERT INTO calls (caller_id, start_time) VALUES (?, ?)', (caller_id, start_time))
-    c.execute('SELECT SCOPE_IDENTITY()')
-    
-    # Get the call ID and return it
-    call_id = c.fetchone()[0]
+    call_id = c.lastrowid
     conn.commit()
     conn.close()
     return int(call_id)
 
+@retry_on_locked
 def log_conversation_turn(call_id, turn_index, speaker, text):
     """
     Log a conversation turn (user or bot message)
@@ -155,6 +183,7 @@ def log_conversation_turn(call_id, turn_index, speaker, text):
     conn.commit()
     conn.close()
 
+@retry_on_locked
 def log_final_decision(call_id, final_decision, summary=None, outcome=None):
     """
     Log the final decision and end time for a call

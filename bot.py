@@ -16,23 +16,13 @@ Key Features:
 Security Note: API keys are loaded securely from configuration, never hardcoded.
 """
 
-import openai
+import os
 import json
 import time
-import logging
+import sys
+import httpx
 from config import AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 from prompts import get_system_prompt
-
-# Initialize Azure OpenAI client with secure configuration
-# Note: API keys are loaded from Azure Key Vault or environment variables
-client = openai.AzureOpenAI(
-    api_key=AZURE_OPENAI_KEY,
-    api_version="2025-01-01-preview",
-    azure_endpoint=AZURE_OPENAI_ENDPOINT
-)
-
-# Configure logging for the bot
-logger = logging.getLogger("twilio")
 
 class VoiceConciergeBot:
     """
@@ -97,40 +87,33 @@ class VoiceConciergeBot:
         Note: The response may contain special commands like {TRANSFER} or {END CALL}
         that are processed by the main application logic.
         """
-        # Get the optimized system prompt for natural, fast responses
         system_prompt = get_system_prompt()
-        
-        # Build the complete message list for OpenAI API
         messages = [{"role": "system", "content": system_prompt}] + self.history
-        
-        # Time the OpenAI API call for performance monitoring
-        openai_start = time.time()
-        
-        # Call Azure OpenAI API for response generation
-        response = client.chat.completions.create(
-            model=AZURE_OPENAI_DEPLOYMENT,  # Use configured deployment
-            messages=messages,
-            temperature=0.2,  # Slightly higher for more natural responses
-            max_tokens=75,    # Limit for concise, natural responses
-        )
-        
-        # Calculate and log API response time
-        openai_time = (time.time() - openai_start) * 1000
-        logger.info(f"OpenAI API call time: {openai_time:.2f}ms")
-        
-        # Extract the generated response
-        reply = response.choices[0].message.content
-
-        # Remove unwanted tags from the response
+        url = f"{AZURE_OPENAI_ENDPOINT}openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2025-01-01-preview"
+        headers = {
+            "api-key": AZURE_OPENAI_KEY,
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "messages": messages
+        }
+        print("[OPENAI REST REQUEST]", url, json.dumps(payload))
+        sys.stdout.flush()
+        try:
+            response = httpx.post(url, headers=headers, json=payload, timeout=30)
+            print("[OPENAI REST RESPONSE]", response.status_code, response.text)
+            sys.stdout.flush()
+            response.raise_for_status()
+            data = response.json()
+            reply = data["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("[OPENAI REST ERROR]", e)
+            sys.stdout.flush()
+            raise
         for tag in ["{CLARIFYING QUESTION}", "{TROLLING}"]:
             reply = reply.replace(tag, "")
-
-        # Add the response to conversation history
         self.add_bot_message(reply)
-        
-        # Analyze the response for decision making
         self._analyze_response(reply)
-        
         return reply
 
     def analyze_user_response(self, user_response):
@@ -151,24 +134,28 @@ class VoiceConciergeBot:
             
         Note: This method is currently unused but available for future enhancements
         """
-        # Get the specialized analysis prompt
-        analysis_prompt = get_system_prompt() # This line was changed from get_urgency_analysis_prompt
-        
-        # Call Azure OpenAI for analysis
-        response = client.chat.completions.create(
-            model=AZURE_OPENAI_DEPLOYMENT,
-            messages=[{"role": "user", "content": analysis_prompt}],
-            temperature=0.1,  # Low temperature for consistent analysis
-            max_tokens=200,   # Sufficient tokens for detailed analysis
-        )
-        
+        analysis_prompt = get_system_prompt()
+        url = f"{AZURE_OPENAI_ENDPOINT}openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2025-01-01-preview"
+        headers = {
+            "api-key": AZURE_OPENAI_KEY,
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "messages": [{"role": "user", "content": analysis_prompt}]
+        }
+        print("[OPENAI REST ANALYZE REQUEST]", url, json.dumps(payload))
+        sys.stdout.flush()
         try:
-            # Parse the JSON response from the analysis
-            analysis = json.loads(response.choices[0].message.content)
+            response = httpx.post(url, headers=headers, json=payload, timeout=30)
+            print("[OPENAI REST ANALYZE RESPONSE]", response.status_code, response.text)
+            sys.stdout.flush()
+            response.raise_for_status()
+            data = response.json()
+            analysis = json.loads(data["choices"][0]["message"]["content"])
             return analysis
-        except json.JSONDecodeError:
-            # Fallback analysis if JSON parsing fails
-            logger.warning("Failed to parse analysis response, using fallback")
+        except Exception as e:
+            print("[OPENAI REST ANALYZE ERROR]", e)
+            sys.stdout.flush()
             return {
                 "urgency_level": 5,
                 "legitimacy": "unknown",
@@ -192,12 +179,10 @@ class VoiceConciergeBot:
         # Check for transfer decision
         if "transfer" in reply_lower:
             self.transfer_decision = True
-            logger.info("Transfer decision detected in AI response")
         
         # Check for voicemail/end call decision
         elif "voicemail" in reply_lower or "message" in reply_lower:
             self.voicemail_decision = True
-            logger.info("Voicemail decision detected in AI response")
 
     def is_transfer(self):
         """
