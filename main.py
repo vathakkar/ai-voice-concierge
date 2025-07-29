@@ -19,16 +19,21 @@ or environment variables in development. Never hardcode sensitive information.
 """
 
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
 from bot import VoiceConciergeBot
-from config import REAL_PHONE_NUMBER
+from config import REAL_PHONE_NUMBER, TWILIO_AUTH_TOKEN
 import uuid
 import time
 import asyncio
 import traceback
+from twilio.request_validator import RequestValidator
+import sys
+
+print("=== AI Concierge Debug Build 2025-07-15 ===")
+sys.stdout.flush()
 
 # Initialize FastAPI application
 app = FastAPI(title="AI Voice Concierge", description="AI-powered phone call screening system")
@@ -43,24 +48,55 @@ def startup_event():
     """Initialize database tables on application startup"""
     init_db()
 
-# Add async startup event for DB connectivity check
-@app.on_event("startup")
-async def async_startup_event():
-    try:
-        # Use the test_database endpoint logic directly
-        # This will catch DB issues at startup
-        await test_database()
-        logging.info("Database connectivity check at startup: SUCCESS")
-    except Exception as e:
-        logging.error(f"Database connectivity check at startup: FAILED - {e}")
+# Remove the async startup event that checks DB connectivity
+# @app.on_event("startup")
+# async def async_startup_event():
+#     try:
+#         # Use the test_database endpoint logic directly
+#         # This will catch DB issues at startup
+#         await test_database()
+#         logging.info("Database connectivity check at startup: SUCCESS")
+#     except Exception as e:
+#         logging.error(f"Database connectivity check at startup: FAILED - {e}")
 
 @app.get("/")
 async def root():
     """Health check endpoint to verify the application is running"""
     return {"message": "AI Voice Concierge is running! (Twilio mode)", "status": "healthy"}
 
+async def verify_twilio_request(request: Request):
+    validator = RequestValidator(TWILIO_AUTH_TOKEN)
+    url = str(request.url)
+    # Use X-Forwarded-Proto if present to reconstruct the original URL
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    if forwarded_proto and url.startswith("http://"):
+        url = url.replace("http://", f"{forwarded_proto}://", 1)
+    debug_msg = f"[DEBUG] Twilio signature validation URL: {url}"
+    print(debug_msg)
+    logging.info(debug_msg)
+    sys.stdout.flush()
+    form = await request.form()
+    params = dict(form)
+    signature = request.headers.get("X-Twilio-Signature", "")
+    debug_msg = f"[DEBUG] Signature from header: {signature}"
+    print(debug_msg)
+    logging.info(debug_msg)
+    sys.stdout.flush()
+    debug_msg = f"[DEBUG] Params: {params}"
+    print(debug_msg)
+    logging.info(debug_msg)
+    sys.stdout.flush()
+    if not validator.validate(url, params, signature):
+        print("[DEBUG] Signature validation failed!")
+        logging.info("[DEBUG] Signature validation failed!")
+        sys.stdout.flush()
+        raise HTTPException(status_code=403, detail="Request signature invalid")
+    print("[DEBUG] Signature validation succeeded.")
+    logging.info("[DEBUG] Signature validation succeeded.")
+    sys.stdout.flush()
+
 @app.post("/twilio/voice")
-async def twilio_voice(request: Request):
+async def twilio_voice(request: Request, _=Depends(verify_twilio_request)):
     """
     Twilio webhook endpoint for incoming voice calls
     
@@ -130,7 +166,7 @@ async def twilio_voice(request: Request):
     return Response(content=twiml, media_type="application/xml")
 
 @app.post("/twilio/ai-response")
-async def twilio_ai_response(request: Request):
+async def twilio_ai_response(request: Request, _=Depends(verify_twilio_request)):
     """
     Twilio webhook endpoint for processing speech input
     
@@ -217,7 +253,7 @@ async def twilio_ai_response(request: Request):
         return Response(content=twiml, media_type="application/xml")
 
 @app.post("/twilio/process-ai")
-async def twilio_process_ai(request: Request):
+async def twilio_process_ai(request: Request, _=Depends(verify_twilio_request)):
     """
     AI processing endpoint for speech analysis and response generation
     
@@ -401,138 +437,139 @@ async def get_recent_conversations_endpoint(limit: int = 10):
     """
     return {"conversations": get_recent_conversations(limit)}
 
-@app.get("/test-db")
-async def test_database():
-    """
-    Database connectivity test endpoint
-    
-    This endpoint tests the database connection to ensure the app can
-    log calls and conversations properly.
-    
-    Returns:
-        JSON response with database status
-    """
-    return {"status": "Database connection successful"}
+# Comment out or remove /test-db and all /exceptions* endpoints
+# @app.get("/test-db")
+# async def test_database():
+#     """
+#     Database connectivity test endpoint
+#     
+#     This endpoint tests the database connection to ensure the app can
+#     log calls and conversations properly.
+#     
+#     Returns:
+#         JSON response with database status
+#     """
+#     return {"status": "Database connection successful"}
 
 # Phase 2: Exception Phone Number Management Endpoints
 
-@app.get("/exceptions")
-async def get_exception_phone_numbers():
-    """
-    Get all active exception phone numbers
-    
-    Returns:
-        JSONResponse: List of all active exception phone numbers
-    """
-    try:
-        from database import get_all_exception_phone_numbers
-        exceptions = get_all_exception_phone_numbers()
-        return JSONResponse(content={"exceptions": exceptions, "count": len(exceptions)})
-    except Exception as e:
-        logging.error(f"Error getting exception phone numbers: {e}")
-        return JSONResponse(content={"error": "Failed to retrieve exception phone numbers"}, status_code=500)
+# @app.get("/exceptions")
+# async def get_exception_phone_numbers():
+#     """
+#     Get all active exception phone numbers
+#     
+#     Returns:
+#         JSONResponse: List of all active exception phone numbers
+#     """
+#     try:
+#         from database import get_all_exception_phone_numbers
+#         exceptions = get_all_exception_phone_numbers()
+#         return JSONResponse(content={"exceptions": exceptions, "count": len(exceptions)})
+#     except Exception as e:
+#         logging.error(f"Error getting exception phone numbers: {e}")
+#         return JSONResponse(content={"error": "Failed to retrieve exception phone numbers"}, status_code=500)
 
-@app.post("/exceptions")
-async def add_exception_phone_number(request: Request):
-    """
-    Add a phone number to the exception list
-    
-    Expected JSON body:
-    {
-        "phone_number": "+1234567890",
-        "contact_name": "Mom",
-        "category": "family"
-    }
-    
-    Returns:
-        JSONResponse: Success/failure status
-    """
-    try:
-        from database import add_exception_phone_number
-        body = await request.json()
-        
-        phone_number = body.get("phone_number")
-        contact_name = body.get("contact_name")
-        category = body.get("category", "family")
-        
-        if not phone_number or not contact_name:
-            return JSONResponse(
-                content={"error": "phone_number and contact_name are required"}, 
-                status_code=400
-            )
-        
-        success = add_exception_phone_number(phone_number, contact_name, category)
-        
-        if success:
-            return JSONResponse(content={"message": "Exception phone number added successfully"})
-        else:
-            return JSONResponse(
-                content={"error": "Phone number already exists in exception list"}, 
-                status_code=409
-            )
-            
-    except Exception as e:
-        logging.error(f"Error adding exception phone number: {e}")
-        return JSONResponse(content={"error": "Failed to add exception phone number"}, status_code=500)
+# @app.post("/exceptions")
+# async def add_exception_phone_number(request: Request):
+#     """
+#     Add a phone number to the exception list
+#     
+#     Expected JSON body:
+#     {
+#         "phone_number": "+1234567890",
+#         "contact_name": "Mom",
+#         "category": "family"
+#     }
+#     
+#     Returns:
+#         JSONResponse: Success/failure status
+#     """
+#     try:
+#         from database import add_exception_phone_number
+#         body = await request.json()
+#         
+#         phone_number = body.get("phone_number")
+#         contact_name = body.get("contact_name")
+#         category = body.get("category", "family")
+#         
+#         if not phone_number or not contact_name:
+#             return JSONResponse(
+#                 content={"error": "phone_number and contact_name are required"}, 
+#                 status_code=400
+#             )
+#         
+#         success = add_exception_phone_number(phone_number, contact_name, category)
+#         
+#         if success:
+#             return JSONResponse(content={"message": "Exception phone number added successfully"})
+#         else:
+#             return JSONResponse(
+#                 content={"error": "Phone number already exists in exception list"}, 
+#                 status_code=409
+#             )
+#             
+#     except Exception as e:
+#         logging.error(f"Error adding exception phone number: {e}")
+#         return JSONResponse(content={"error": "Failed to add exception phone number"}, status_code=500)
 
-@app.delete("/exceptions/{phone_number}")
-async def remove_exception_phone_number(phone_number: str):
-    """
-    Remove a phone number from the exception list
-    
-    Args:
-        phone_number: The phone number to remove (URL encoded)
-        
-    Returns:
-        JSONResponse: Success/failure status
-    """
-    try:
-        from database import remove_exception_phone_number
-        from urllib.parse import unquote
-        
-        # URL decode the phone number
-        decoded_number = unquote(phone_number)
-        
-        success = remove_exception_phone_number(decoded_number)
-        
-        if success:
-            return JSONResponse(content={"message": "Exception phone number removed successfully"})
-        else:
-            return JSONResponse(
-                content={"error": "Phone number not found in exception list"}, 
-                status_code=404
-            )
-            
-    except Exception as e:
-        logging.error(f"Error removing exception phone number: {e}")
-        return JSONResponse(content={"error": "Failed to remove exception phone number"}, status_code=500)
+# @app.delete("/exceptions/{phone_number}")
+# async def remove_exception_phone_number(phone_number: str):
+#     """
+#     Remove a phone number from the exception list
+#     
+#     Args:
+#         phone_number: The phone number to remove (URL encoded)
+#         
+#     Returns:
+#         JSONResponse: Success/failure status
+#     """
+#     try:
+#         from database import remove_exception_phone_number
+#         from urllib.parse import unquote
+#         
+#         # URL decode the phone number
+#         decoded_number = unquote(phone_number)
+#         
+#         success = remove_exception_phone_number(decoded_number)
+#         
+#         if success:
+#             return JSONResponse(content={"message": "Exception phone number removed successfully"})
+#         else:
+#             return JSONResponse(
+#                 content={"error": "Phone number not found in exception list"}, 
+#                 status_code=404
+#             )
+#             
+#     except Exception as e:
+#         logging.error(f"Error removing exception phone number: {e}")
+#         return JSONResponse(content={"error": "Failed to remove exception phone number"}, status_code=500)
 
-@app.get("/exceptions/check/{phone_number}")
-async def check_exception_phone_number(phone_number: str):
-    """
-    Check if a phone number is in the exception list
-    
-    Args:
-        phone_number: The phone number to check (URL encoded)
-        
-    Returns:
-        JSONResponse: Contact information if found, null if not found
-    """
-    try:
-        from urllib.parse import unquote
-        
-        # URL decode the phone number
-        decoded_number = unquote(phone_number)
-        
-        contact = is_exception_phone_number(decoded_number)
-        
-        if contact:
-            return JSONResponse(content={"found": True, "contact": contact})
-        else:
-            return JSONResponse(content={"found": False, "contact": None})
-            
-    except Exception as e:
-        logging.error(f"Error checking exception phone number: {e}")
-        return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
+# @app.get("/exceptions/check/{phone_number}")
+# async def check_exception_phone_number(phone_number: str):
+#     """
+#     Check if a phone number is in the exception list
+#     
+#     Args:
+#         phone_number: The phone number to check (URL encoded)
+#         
+#     Returns:
+#         JSONResponse: Contact information if found, null if not found
+#     """
+#     try:
+#         from urllib.parse import unquote
+#         
+#         # URL decode the phone number
+#         decoded_number = unquote(phone_number)
+#         
+#         contact = is_exception_phone_number(decoded_number)
+#         
+#         if contact:
+#             return JSONResponse(content={"found": True, "contact": contact})
+#         else:
+#             return JSONResponse(content={"found": False, "contact": None})
+#             
+#     except Exception as e:
+#         logging.error(f"Error checking exception phone number: {e}")
+#         return JSONResponse(content={"error": "Failed to check exception phone number"}, status_code=500) 
 
 # Remove all calls to async_log_call_summary and its definition 

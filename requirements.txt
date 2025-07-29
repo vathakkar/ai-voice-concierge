@@ -67,3 +67,5 @@ azure-keyvault-secrets
 
 # Azure Identity - For Azure authentication and managed identity
 azure-identity
+
+twilio==8.10.0

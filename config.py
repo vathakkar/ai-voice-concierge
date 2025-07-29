@@ -150,3 +150,11 @@ SQLITE_DB_PATH = os.getenv('SQLITE_DB_PATH', 'calls.db')
 # TTS voice configuration (currently unused, Twilio handles TTS)
 
 TTS_VOICE = os.getenv('TTS_VOICE', 'en-US-JennyNeural') 
+# =============================================================================
+# TWILIO CONFIGURATION
+# =============================================================================
+# Twilio secrets and phone number for webhook validation and call handling
+
+TWILIO_ACCOUNT_SID = get_secret_from_keyvault('TWILIO-ACCOUNT-SID', 'TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = get_secret_from_keyvault('TWILIO-AUTH-TOKEN', 'TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = get_secret_from_keyvault('TWILIO-PHONE-NUMBER', 'TWILIO_PHONE_NUMBER') 
