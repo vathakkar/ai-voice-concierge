@@ -1,6 +1,7 @@
 # ... existing code ...
 README-SECURE.md
 .env
+.env.backup
 # Exclude logs and temp files
 logs/
 logs_latest/

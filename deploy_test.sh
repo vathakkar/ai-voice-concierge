@@ -33,10 +33,12 @@ if ! docker build -t $IMAGE_NAME .; then
 fi
 
 echo "Running local container for health check..."
-CONTAINER_ID=$(docker run --env-file .env -d -p 8000:8000 $IMAGE_NAME)
+CONTAINER_ID=$(docker run --env-file .env -e ENABLE_TTS_PREGEN=false -d -p 8000:8000 $IMAGE_NAME)
+echo "Waiting for app to start (TTS pre-generation disabled for local testing)..."
 sleep 8
 
 # Health check: try to curl the root endpoint
+echo "Performing health check..."
 if curl -sSf http://localhost:8000/ > /dev/null; then
   echo "Local container started successfully. Stopping and removing test container."
   docker stop $CONTAINER_ID > /dev/null

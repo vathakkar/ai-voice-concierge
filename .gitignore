@@ -89,6 +89,7 @@ env/
 ENV/
 .venv/
 .env/
+.env.backup
 
 # Python testing
 .pytest_cache/

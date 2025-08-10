@@ -120,9 +120,16 @@ AZURE_SPEECH_REGION = get_secret_from_keyvault('AZURE-SPEECH-REGION', 'AZURE_SPE
 # =============================================================================
 # Core AI service configuration for call screening and response generation
 
-AZURE_OPENAI_KEY = get_secret_from_keyvault('AZURE-OPENAI-KEY', 'AZURE_OPENAI_KEY')
-AZURE_OPENAI_ENDPOINT = get_secret_from_keyvault('AZURE-OPENAI-ENDPOINT', 'AZURE_OPENAI_ENDPOINT')
-AZURE_OPENAI_DEPLOYMENT = get_secret_from_keyvault('AZURE-OPENAI-DEPLOYMENT', 'AZURE_OPENAI_DEPLOYMENT')
+# Primary OpenAI service (East US - FASTER)
+AZURE_OPENAI_KEY = get_secret_from_keyvault('AZURE-OPENAI-KEY-EASTUS', 'AZURE_OPENAI_KEY_EASTUS')
+AZURE_OPENAI_ENDPOINT = get_secret_from_keyvault('AZURE-OPENAI-ENDPOINT-EASTUS', 'AZURE_OPENAI_ENDPOINT_EASTUS')
+AZURE_OPENAI_DEPLOYMENT = get_secret_from_keyvault('AZURE-OPENAI-DEPLOYMENT-EASTUS', 'AZURE_OPENAI_DEPLOYMENT_EASTUS')
+
+# Fallback to original service if East US not available
+if not AZURE_OPENAI_KEY or not AZURE_OPENAI_ENDPOINT or not AZURE_OPENAI_DEPLOYMENT:
+    AZURE_OPENAI_KEY = get_secret_from_keyvault('AZURE-OPENAI-KEY', 'AZURE_OPENAI_KEY')
+    AZURE_OPENAI_ENDPOINT = get_secret_from_keyvault('AZURE-OPENAI-ENDPOINT', 'AZURE_OPENAI_ENDPOINT')
+    AZURE_OPENAI_DEPLOYMENT = get_secret_from_keyvault('AZURE-OPENAI-DEPLOYMENT', 'AZURE_OPENAI_DEPLOYMENT')
 
 # =============================================================================
 # DATABASE CONFIGURATION
@@ -152,7 +159,44 @@ SQLITE_DB_PATH = os.getenv('SQLITE_DB_PATH', 'calls.db')
 TTS_VOICE = os.getenv('TTS_VOICE', 'en-US-JennyNeural')
 
 # TTS service configuration
-USE_AZURE_TTS = os.getenv('USE_AZURE_TTS', 'true').lower() == 'true' 
+USE_AZURE_TTS = os.getenv('USE_AZURE_TTS', 'true').lower() == 'true'
+
+# Pre-generation configuration
+# Set to 'false' to skip TTS pre-generation (useful for local testing)
+ENABLE_TTS_PREGEN = os.getenv('ENABLE_TTS_PREGEN', 'true').lower() == 'true'
+
+# =============================================================================
+# VOICE MESSAGES CONFIGURATION
+# =============================================================================
+# Common voice messages that are frequently used and can be pre-generated
+
+# Initial greeting message for incoming calls
+GREETING_MESSAGE = os.getenv('GREETING_MESSAGE', 
+    "Hi, I'm Vansh's virtual assistant. He's busy right now, but I can take the reason for your call and either transfer you or notify him to get back to you. What's the reason for your call today?")
+
+# "One moment" message for processing delays
+ONE_MOMENT_MESSAGE = os.getenv('ONE_MOMENT_MESSAGE', "One moment.")
+
+# Retry message when no speech is detected
+RETRY_MESSAGE = os.getenv('RETRY_MESSAGE', "I didn't hear anything. Can you please repeat how I can help?")
+
+# Final retry message before ending call
+FINAL_RETRY_MESSAGE = os.getenv('FINAL_RETRY_MESSAGE', "Sorry, I still didn't hear anything. Goodbye!")
+
+# Transfer message for exception contacts
+TRANSFER_MESSAGE = os.getenv('TRANSFER_MESSAGE', "Transferring you now.")
+
+# Fallback message for transfer failures
+TRANSFER_FALLBACK_MESSAGE = os.getenv('TRANSFER_FALLBACK_MESSAGE', 
+    "Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.")
+
+# Error messages
+ERROR_MESSAGE_ERR01 = os.getenv('ERROR_MESSAGE_ERR01', 
+    "I am experiencing an outage, please call back later. Goodbye! Error code: ERR01")
+ERROR_MESSAGE_ERR02 = os.getenv('ERROR_MESSAGE_ERR02', 
+    "Sorry, there was an error. Goodbye! Error code: ERR02")
+ERROR_MESSAGE_ERR03 = os.getenv('ERROR_MESSAGE_ERR03', 
+    "Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible. Error code: ERR03") 
 # =============================================================================
 # TWILIO CONFIGURATION
 # =============================================================================

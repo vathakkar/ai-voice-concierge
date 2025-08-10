@@ -21,6 +21,7 @@ import json
 import time
 import sys
 import httpx
+import random
 from config import AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
 from prompts import get_system_prompt
 
@@ -97,21 +98,71 @@ class VoiceConciergeBot:
         payload = {
             "messages": messages
         }
-        print("[OPENAI REST REQUEST]", url, json.dumps(payload))
-        sys.stdout.flush()
-        try:
-            response = httpx.post(url, headers=headers, json=payload, timeout=10)
-            print("[OPENAI REST RESPONSE]", response.status_code, response.text)
-            sys.stdout.flush()
-            response.raise_for_status()
-            data = response.json()
-            reply = data["choices"][0]["message"]["content"]
-        except Exception as e:
-            print("[OPENAI REST ERROR]", e)
-            sys.stdout.flush()
-            raise
+        
+        # Retry logic for rate limiting
+        max_retries = 3
+        base_delay = 1  # Start with 1 second
+        
+        for attempt in range(max_retries):
+            try:
+                print(f"[OPENAI REST REQUEST] Attempt {attempt + 1}/{max_retries}", url, json.dumps(payload))
+                sys.stdout.flush()
+                
+                response = httpx.post(url, headers=headers, json=payload, timeout=10)
+                print(f"[OPENAI REST RESPONSE] Attempt {attempt + 1}/{max_retries}", response.status_code, response.text)
+                sys.stdout.flush()
+                
+                # Handle rate limiting specifically
+                if response.status_code == 429:
+                    if attempt < max_retries - 1:  # Don't sleep on last attempt
+                        # Parse retry-after header or use exponential backoff
+                        retry_after = response.headers.get('retry-after')
+                        if retry_after:
+                            delay = int(retry_after)
+                        else:
+                            # Exponential backoff with jitter
+                            delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                        
+                        print(f"[RATE LIMIT] Waiting {delay:.2f}s before retry {attempt + 1}/{max_retries}")
+                        sys.stdout.flush()
+                        time.sleep(delay)
+                        continue
+                    else:
+                        # Last attempt failed with 429
+                        print("[RATE LIMIT] Max retries exceeded, returning error message")
+                        sys.stdout.flush()
+                        error_reply = "I apologize, but I am experiencing high demand right now. Please try calling back in a few minutes. Thank you for your patience."
+                        self.add_bot_message(error_reply)
+                        self._analyze_response(error_reply)
+                        return error_reply
+                
+                response.raise_for_status()
+                data = response.json()
+                reply = data["choices"][0]["message"]["content"]
+                
+                # Success - break out of retry loop
+                break
+                
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429 and attempt < max_retries - 1:
+                    # This should have been handled above, but just in case
+                    continue
+                else:
+                    print(f"[OPENAI REST ERROR] HTTP {e.response.status_code}: {e}")
+                    sys.stdout.flush()
+                    raise
+            except Exception as e:
+                print(f"[OPENAI REST ERROR] Attempt {attempt + 1}/{max_retries}: {e}")
+                sys.stdout.flush()
+                if attempt == max_retries - 1:
+                    raise
+                # Wait before retry for other errors
+                time.sleep(base_delay * (2 ** attempt))
+        
+        # Clean up response tags
         for tag in ["{CLARIFYING QUESTION}", "{TROLLING}"]:
             reply = reply.replace(tag, "")
+        
         self.add_bot_message(reply)
         self._analyze_response(reply)
         return reply
@@ -143,26 +194,91 @@ class VoiceConciergeBot:
         payload = {
             "messages": [{"role": "user", "content": analysis_prompt}]
         }
-        print("[OPENAI REST ANALYZE REQUEST]", url, json.dumps(payload))
-        sys.stdout.flush()
-        try:
-            response = httpx.post(url, headers=headers, json=payload, timeout=10)
-            print("[OPENAI REST ANALYZE RESPONSE]", response.status_code, response.text)
-            sys.stdout.flush()
-            response.raise_for_status()
-            data = response.json()
-            analysis = json.loads(data["choices"][0]["message"]["content"])
-            return analysis
-        except Exception as e:
-            print("[OPENAI REST ANALYZE ERROR]", e)
-            sys.stdout.flush()
-            return {
-                "urgency_level": 5,
-                "legitimacy": "unknown",
-                "call_type": "unknown",
-                "reasoning": "Could not parse analysis",
-                "recommended_action": "voicemail"
-            }
+        
+        # Retry logic for rate limiting
+        max_retries = 3
+        base_delay = 1  # Start with 1 second
+        
+        for attempt in range(max_retries):
+            try:
+                print(f"[OPENAI REST ANALYZE REQUEST] Attempt {attempt + 1}/{max_retries}", url, json.dumps(payload))
+                sys.stdout.flush()
+                
+                response = httpx.post(url, headers=headers, json=payload, timeout=10)
+                print(f"[OPENAI REST ANALYZE RESPONSE] Attempt {attempt + 1}/{max_retries}", response.status_code, response.text)
+                sys.stdout.flush()
+                
+                # Handle rate limiting specifically
+                if response.status_code == 429:
+                    if attempt < max_retries - 1:  # Don't sleep on last attempt
+                        # Parse retry-after header or use exponential backoff
+                        retry_after = response.headers.get('retry-after')
+                        if retry_after:
+                            delay = int(retry_after)
+                        else:
+                            # Exponential backoff with jitter
+                            delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                        
+                        print(f"[RATE LIMIT] Waiting {delay:.2f}s before retry {attempt + 1}/{max_retries}")
+                        sys.stdout.flush()
+                        time.sleep(delay)
+                        continue
+                    else:
+                        # Last attempt failed with 429
+                        print("[RATE LIMIT] Max retries exceeded, returning default analysis")
+                        sys.stdout.flush()
+                        return {
+                            "urgency_level": 5,
+                            "legitimacy": "unknown",
+                            "call_type": "unknown",
+                            "reasoning": "Rate limit exceeded, using default analysis",
+                            "recommended_action": "voicemail"
+                        }
+                
+                response.raise_for_status()
+                data = response.json()
+                analysis = json.loads(data["choices"][0]["message"]["content"])
+                return analysis
+                
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429 and attempt < max_retries - 1:
+                    # This should have been handled above, but just in case
+                    continue
+                else:
+                    print(f"[OPENAI REST ANALYZE ERROR] HTTP {e.response.status_code}: {e}")
+                    sys.stdout.flush()
+                    if attempt == max_retries - 1:
+                        return {
+                            "urgency_level": 5,
+                            "legitimacy": "unknown",
+                            "call_type": "unknown",
+                            "reasoning": f"HTTP error {e.response.status_code}",
+                            "recommended_action": "voicemail"
+                        }
+                # Wait before retry for other errors
+                time.sleep(base_delay * (2 ** attempt))
+            except Exception as e:
+                print(f"[OPENAI REST ANALYZE ERROR] Attempt {attempt + 1}/{max_retries}: {e}")
+                sys.stdout.flush()
+                if attempt == max_retries - 1:
+                    return {
+                        "urgency_level": 5,
+                        "legitimacy": "unknown",
+                        "call_type": "unknown",
+                        "reasoning": f"Error: {str(e)}",
+                        "recommended_action": "voicemail"
+                    }
+                # Wait before retry for other errors
+                time.sleep(base_delay * (2 ** attempt))
+        
+        # If we somehow get here, return default
+        return {
+            "urgency_level": 5,
+            "legitimacy": "unknown",
+            "call_type": "unknown",
+            "reasoning": "Unexpected error in analysis",
+            "recommended_action": "voicemail"
+        }
 
     def _analyze_response(self, reply):
         """
@@ -185,7 +301,7 @@ class VoiceConciergeBot:
             self.voicemail_decision = True
 
     def is_transfer(self):
-        """
+        """m
         Check if the bot has decided to transfer the call
         
         Returns:
