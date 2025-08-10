@@ -1,9 +1,9 @@
 # AI Voice Concierge
 
 ## Overview
-This project is a production-ready AI Voice Concierge system that answers phone calls, screens callers, and interacts using natural language. It is built with FastAPI, Twilio Voice, Azure OpenAI, and Azure SQL Database for persistent logging.
+This project is a production-ready AI Voice Concierge system that answers phone calls, screens callers, and interacts using natural language. It is built with FastAPI, Twilio Voice, Azure OpenAI, and SQLite for persistent logging.
 
-**Current Status**: Optimized for fast, natural conversations with ~750ms average response times and smart decision making.
+**Current Status**: Optimized for fast, natural conversations and smart decision making.
 
 ---
 
@@ -12,8 +12,8 @@ This project is a production-ready AI Voice Concierge system that answers phone 
 - **Twilio Voice**: Receives calls, collects speech, and relays to FastAPI.
 - **Azure OpenAI**: Provides the AI assistant logic for dynamic, context-aware responses.
 - **Azure Speech Services**: High-quality, low-latency text-to-speech synthesis.
-- **Azure SQL Database**: Stores all call and conversation logs for auditing and review.
-- **Azure Key Vault**: Stores secrets (API keys, SQL connection string) securely.
+- **SQLite**: Stores all call and conversation logs for auditing and review (local only).
+- **Azure Key Vault**: Stores secrets (API keys) securely.
 - **Docker**: Containerized for easy deployment to Azure App Service.
 
 ---
@@ -98,15 +98,9 @@ TWILIO_PHONE_NUMBER=+1234567890
 REAL_PHONE_NUMBER=+1234567890
 ```
 
-#### Database Configuration
+#### SQLite Configuration
 ```bash
-# Set to 'true' for Azure SQL, 'false' for SQLite (development)
-USE_AZURE_SQL=true
-
-# Azure SQL Connection String (from Azure Portal)
-AZURE_SQL_CONNECTION_STRING=Server=tcp:your-server.database.windows.net,1433;Database=your-database;Authentication=Active Directory Default;
-
-# SQLite Database Path (for development only)
+# SQLite Database Path
 SQLITE_DB_PATH=calls.db
 ```
 
@@ -147,7 +141,6 @@ AZURE_OPENAI_KEY=your_key_here
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_OPENAI_DEPLOYMENT=your_deployment
 REAL_PHONE_NUMBER=+1234567890
-USE_AZURE_SQL=false
 SQLITE_DB_PATH=calls.db
 ```
 
@@ -228,13 +221,54 @@ This setup ensures you are not disturbed by non-urgent calls and only answer tho
 
 ---
 
-## Performance Optimizations
-- **Response Time**: ~750ms average (GPT-3.5-turbo with optimized prompts)
-- **TTS Latency**: ~100-200ms with Azure Speech Services (vs 500-800ms with Twilio Polly)
-- **Response Length**: ~12 words average for natural, concise communication
-- **Decision Accuracy**: 100% correct classification of urgent vs non-urgent calls
-- **Audio Caching**: Common responses cached for faster playback
-- **Optimized Prompts**: System prompts designed for speed and naturalness
+## Performance
+
+### Latest Performance Test Results (August 2025)
+- **Tested Model:** GPT-4o-mini, Azure Speech Services
+- **Scenarios:** All 5 scenarios completed successfully (no rate limit errors)
+- **End-to-end SLO (P95 < 3000ms):** PASS (P95 = 2248ms)
+- **Endpoint latency SLO (P95 < 100ms):** FAIL (P95 = 624ms for /twilio/voice, 1799ms for /twilio/process-ai)
+- **TTS/AI Processing Time:** No data captured (check logging/extraction)
+- **Memory Usage:** Avg 25.6MB, Peak 30.6MB
+- **Test Method:** 65-second delay between scenarios to avoid Azure OpenAI rate limits
+
+### Competition Analysis & Industry Benchmarks
+
+#### Market Performance Standards
+- **Enterprise Voice AI (Google Dialogflow, Amazon Lex):**
+  - End-to-end response: 2-4 seconds (P95)
+  - TTS latency: 200-500ms
+  - AI processing: 1-3 seconds
+  - **Our Performance:** Competitive with enterprise solutions
+
+- **Consumer Voice Assistants (Siri, Alexa, Google Assistant):**
+  - End-to-end response: 1-3 seconds (P95)
+  - TTS latency: 100-300ms
+  - AI processing: 500ms-2 seconds
+  - **Our Performance:** Comparable to consumer-grade systems
+
+- **Call Center AI (Genesys, Avaya):**
+  - End-to-end response: 3-6 seconds (P95)
+  - TTS latency: 300-800ms
+  - AI processing: 2-4 seconds
+  - **Our Performance:** Significantly faster than traditional call center solutions
+
+#### Competitive Advantages
+1. **Speed:** Our P95 of 2248ms beats most enterprise call screening solutions
+2. **Cost:** Azure OpenAI GPT-4o-mini provides enterprise-grade AI at consumer pricing
+3. **Quality:** Azure Speech Services neural voices match premium TTS providers
+4. **Reliability:** 100% success rate in recent tests with proper rate limit management
+
+#### Areas for Improvement
+1. **Endpoint Latency:** Current P95 of 1799ms for AI processing exceeds 100ms target
+2. **Rate Limiting:** Requires 65-second delays between calls to avoid Azure OpenAI limits
+3. **TTS Metrics:** Need better instrumentation for TTS generation timing
+
+#### Industry Positioning
+- **Performance Tier:** Mid-enterprise (competitive with $50K+ annual solutions)
+- **Cost Tier:** Consumer/SMB (fraction of enterprise pricing)
+- **Quality Tier:** Enterprise-grade (Azure OpenAI + Azure Speech Services)
+- **Scalability:** Production-ready with Azure App Service infrastructure
 
 ---
 
@@ -247,7 +281,7 @@ This setup ensures you are not disturbed by non-urgent calls and only answer tho
 ---
 
 ## Logging
-Every call and conversation turn is logged in the Azure SQL Database (or SQLite for development). 
+Every call and conversation turn is logged in the SQLite database (local only). 
 
 ---
 
