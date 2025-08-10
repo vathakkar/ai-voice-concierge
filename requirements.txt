@@ -39,7 +39,10 @@ httpx==0.27.0
 openai==1.3.7
 
 # Azure Cognitive Services Speech - For speech processing (legacy/unused)
-azure-cognitiveservices-speech==1.34.0
+# azure-cognitiveservices-speech==1.34.0  # Removed due to container compatibility issues
+
+# Aiohttp - Async HTTP client for Azure Speech Services REST API
+aiohttp==3.9.1
 
 # =============================================================================
 # DATABASE CONNECTIVITY

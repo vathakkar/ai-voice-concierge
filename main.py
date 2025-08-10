@@ -18,22 +18,29 @@ Security Note: All API keys and secrets are loaded from Azure Key Vault in produ
 or environment variables in development. Never hardcode sensitive information.
 """
 
+import os
 import logging
-from fastapi import FastAPI, Request, Depends, HTTPException
-from fastapi.responses import Response, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from database import init_db, log_new_call, log_conversation_turn, log_final_decision, get_recent_conversations, is_exception_phone_number, update_call_summary_and_outcome
-from bot import VoiceConciergeBot
-from config import REAL_PHONE_NUMBER, TWILIO_AUTH_TOKEN
-import uuid
 import time
-import asyncio
-import traceback
-from twilio.request_validator import RequestValidator
+import uuid
 import sys
+from typing import Optional, Dict
+from fastapi import FastAPI, Request, Depends, HTTPException, Form
+from fastapi.responses import Response, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+from twilio.request_validator import RequestValidator
+import asyncio
+from datetime import datetime, timedelta
+
+# Import our modules
+from config import *
+from database import *
+from prompts import *
+from tts_service import generate_tts_audio
+from bot import VoiceConciergeBot
 
 print("=== AI Concierge Debug Build 2025-07-15 ===")
-sys.stdout.flush()
 
 # Initialize FastAPI application
 app = FastAPI(title="AI Voice Concierge", description="AI-powered phone call screening system")
@@ -42,6 +49,181 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Global session storage for call state management
 # Note: In production, consider using Redis or database for session persistence
 sessions = {}
+
+# Global audio file storage (in production, use Azure Blob Storage)
+_audio_files: Dict[str, bytes] = {}
+
+# Clear TTS cache on startup to ensure we use the new audio serving approach
+def clear_tts_cache():
+    """Clear TTS cache to ensure we use the new audio serving approach"""
+    try:
+        from tts_service import get_tts_service
+        tts_service = get_tts_service()
+        tts_service.clear_cache()
+        logging.info("[TTS] Cleared TTS cache to ensure new audio serving approach")
+    except Exception as e:
+        logging.warning(f"[TTS] Could not clear TTS cache: {e}")
+
+# Clear cache on module import
+clear_tts_cache()
+
+@app.get("/audio/{audio_id}")
+async def serve_audio(audio_id: str):
+    """Serve audio files for Twilio"""
+    if audio_id in _audio_files:
+        audio_data = _audio_files[audio_id]
+        # Clean up old audio files (older than 5 minutes)
+        _cleanup_old_audio_files()
+        return Response(content=audio_data, media_type="audio/wav")
+    else:
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+def _cleanup_old_audio_files():
+    """Clean up old audio files to prevent memory issues"""
+    global _audio_files
+    # In a real implementation, you'd track timestamps
+    # For now, just limit the cache size
+    if len(_audio_files) > 100:
+        # Remove oldest entries (simple implementation)
+        keys_to_remove = list(_audio_files.keys())[:50]
+        for key in keys_to_remove:
+            del _audio_files[key]
+
+async def create_tts_twiml(text: str, fallback_to_twilio: bool = True) -> str:
+    """
+    Create TwiML with Azure TTS audio, falling back to Twilio TTS if needed
+    
+    Args:
+        text: Text to synthesize
+        fallback_to_twilio: Whether to fallback to Twilio TTS if Azure fails
+        
+    Returns:
+        TwiML string with custom audio or fallback to Twilio Say
+    """
+    if not text or not text.strip():
+        logging.warning("[TTS] Empty text provided to create_tts_twiml")
+        return '''
+        <Response>
+            <Say voice="polly.justin">I'm sorry, there was an error processing your request.</Say>
+        </Response>
+        '''
+    
+    try:
+        # Try Azure TTS first
+        audio_base64 = await generate_tts_audio(text)
+        if audio_base64 and len(audio_base64) > 100:  # Ensure we have valid audio data
+            logging.info(f"[TTS] Using Azure TTS for: {text[:50]}...")
+            
+            # Decode base64 to get audio data
+            import base64
+            audio_data = base64.b64decode(audio_base64)
+            
+            # Store audio data with unique ID
+            audio_id = str(uuid.uuid4())
+            _audio_files[audio_id] = audio_data
+            
+            # Create audio URL
+            audio_url = f"https://ai-voice-concierge-canadacentral.azurewebsites.net/audio/{audio_id}"
+            
+            return f'''
+            <Response>
+                <Play>{audio_url}</Play>
+            </Response>
+            '''
+        else:
+            logging.warning(f"[TTS] Azure TTS returned invalid audio data, falling back to Twilio TTS")
+    except Exception as e:
+        logging.error(f"[TTS] Azure TTS failed in create_tts_twiml: {str(e)}")
+    
+    # Fallback to Twilio TTS if Azure fails or fallback is enabled
+    if fallback_to_twilio:
+        logging.info(f"[TTS] Using Twilio TTS fallback for: {text[:50]}...")
+        return f'''
+        <Response>
+            <Say voice="polly.justin">{text}</Say>
+        </Response>
+        '''
+    else:
+        return f'''
+        <Response>
+            <Say voice="polly.justin">{text}</Say>
+        </Response>
+        '''
+
+async def create_tts_twiml_with_gather(text: str, action_url: str, timeout: int = 6, fallback_to_twilio: bool = True) -> str:
+    """
+    Create TwiML with Azure TTS audio and Gather element
+    
+    Args:
+        text: Text to synthesize
+        action_url: URL for Gather action
+        timeout: Speech timeout in seconds
+        fallback_to_twilio: Whether to fallback to Twilio TTS if Azure fails
+        
+    Returns:
+        TwiML string with custom audio and Gather
+    """
+    if not text or not text.strip():
+        logging.warning("[TTS] Empty text provided to create_tts_twiml_with_gather")
+        return f'''
+        <Response>
+            <Say voice="polly.justin">I'm sorry, there was an error processing your request.</Say>
+            <Gather input="speech" action="{action_url}" method="POST" timeout="{timeout}">
+            </Gather>
+            <Redirect method="POST">{action_url}</Redirect>
+        </Response>
+        '''
+    
+    try:
+        # Try Azure TTS first
+        audio_base64 = await generate_tts_audio(text)
+        if audio_base64 and len(audio_base64) > 100:  # Ensure we have valid audio data
+            logging.info(f"[TTS] Using Azure TTS with Gather for: {text[:50]}...")
+            
+            # Decode base64 to get audio data
+            import base64
+            audio_data = base64.b64decode(audio_base64)
+            
+            # Store audio data with unique ID
+            audio_id = str(uuid.uuid4())
+            _audio_files[audio_id] = audio_data
+            
+            # Create audio URL
+            audio_url = f"https://ai-voice-concierge-canadacentral.azurewebsites.net/audio/{audio_id}"
+            
+            return f'''
+            <Response>
+                <Play>{audio_url}</Play>
+                <Gather input="speech" action="{action_url}" method="POST" timeout="{timeout}">
+                </Gather>
+                <Redirect method="POST">{action_url}</Redirect>
+            </Response>
+            '''
+        else:
+            logging.warning(f"[TTS] Azure TTS returned invalid audio data, falling back to Twilio TTS")
+    except Exception as e:
+        logging.error(f"[TTS] Azure TTS failed in create_tts_twiml_with_gather: {str(e)}")
+    
+    # Fallback to Twilio TTS if Azure fails or fallback is enabled
+    if fallback_to_twilio:
+        logging.info(f"[TTS] Using Twilio TTS fallback with Gather for: {text[:50]}...")
+        return f'''
+        <Response>
+            <Say voice="polly.justin">{text}</Say>
+            <Gather input="speech" action="{action_url}" method="POST" timeout="{timeout}">
+            </Gather>
+            <Redirect method="POST">{action_url}</Redirect>
+        </Response>
+        '''
+    else:
+        return f'''
+        <Response>
+            <Say voice="polly.justin">{text}</Say>
+            <Gather input="speech" action="{action_url}" method="POST" timeout="{timeout}">
+            </Gather>
+            <Redirect method="POST">{action_url}</Redirect>
+        </Response>
+        '''
 
 @app.on_event("startup")
 def startup_event():
@@ -97,21 +279,7 @@ async def verify_twilio_request(request: Request):
 
 @app.post("/twilio/voice")
 async def twilio_voice(request: Request, _=Depends(verify_twilio_request)):
-    """
-    Twilio webhook endpoint for incoming voice calls
-    
-    This endpoint is called when a new call comes in. It:
-    1. Checks if caller is in exception list (family/friends/favorites)
-    2. If exception: transfers directly without AI screening
-    3. If not exception: creates session and proceeds with AI screening
-    4. Logs the call start
-    
-    Args:
-        request: FastAPI Request object containing Twilio form data
-        
-    Returns:
-        TwiML Response with appropriate action (transfer or AI screening)
-    """
+    start = time.time()
     # Extract caller information from Twilio form data
     form = await request.form()
     caller_id = form.get("From", "unknown")
@@ -123,15 +291,14 @@ async def twilio_voice(request: Request, _=Depends(verify_twilio_request)):
     exception_contact = is_exception_phone_number(caller_id)
     
     if exception_contact:
+        logging.info("[TTS] Exception contact, using TTS for transfer message.")
         # Caller is in exception list - transfer directly without AI screening
         log_final_decision(call_id, "transferred_exception", summary="Exception contact, direct transfer.", outcome="exception_transfer")
         # Transfer to real phone number
-        twiml = f'''
-        <Response>
-            <Say voice="polly.justin">Transferring you now.</Say>
-            <Dial>{REAL_PHONE_NUMBER}</Dial>
-        </Response>
-        '''
+        twiml = await create_tts_twiml("Transferring you now.")
+        twiml = twiml.replace('</Response>', f'<Dial>{REAL_PHONE_NUMBER}</Dial></Response>')
+        logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+        logging.info(f"[TTS] /twilio/voice latency: {time.time() - start:.2f}s")
         return Response(content=twiml, media_type="application/xml")
     
     # Caller is not in exception list - proceed with normal AI screening
@@ -154,15 +321,10 @@ async def twilio_voice(request: Request, _=Depends(verify_twilio_request)):
     action_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
     
     # Generate TwiML response with greeting and speech collection
-    twiml = f'''
-    <Response>
-        <Say voice="polly.justin">Hi, I am a virtual assistant. Tell me how can Vansh help you today? I will analyze your response and see if I can get a hold of him.</Say>
-        <Gather input="speech" action="{action_url}" method="POST" timeout="6">
-        </Gather>
-        <Redirect method="POST">{action_url}</Redirect>
-    </Response>
-    '''
-    
+    greeting_text = "Hi, I am a virtual assistant. Tell me how can Vansh help you today? I will analyze your response and see if I can get a hold of him."
+    twiml = await create_tts_twiml_with_gather(greeting_text, action_url, timeout=3)
+    logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+    logging.info(f"[TTS] /twilio/voice latency: {time.time() - start:.2f}s")
     return Response(content=twiml, media_type="application/xml")
 
 @app.post("/twilio/ai-response")
@@ -183,7 +345,7 @@ async def twilio_ai_response(request: Request, _=Depends(verify_twilio_request))
         TwiML Response with appropriate next action
     """
     try:
-        # Extract form data from Twilio
+        start_time = time.time()
         form = await request.form()
         
         # Get speech result from Twilio
@@ -212,36 +374,28 @@ async def twilio_ai_response(request: Request, _=Depends(verify_twilio_request))
             # Store speech for processing and redirect to AI processing
             session["pending_speech"] = user_speech
             process_url = f"/twilio/process-ai?session_id={session_id}".replace("&", "&amp;")
-            twiml = f'''
-            <Response>
-                <Say voice="polly.justin">One moment.</Say>
-                <Redirect method="POST">{process_url}</Redirect>
-            </Response>
-            '''
+            twiml = await create_tts_twiml("One moment.")
+            twiml = twiml.replace('</Response>', f'<Redirect method="POST">{process_url}</Redirect></Response>')
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/ai-response latency: {time.time() - start_time:.2f}s")
             return Response(content=twiml, media_type="application/xml")
         else:
             # Handle no speech detected
             if retry == 0:
                 # First retry - ask caller to repeat
                 action_url = f"/twilio/ai-response?session_id={session_id}&retry=1".replace("&", "&amp;")
-                twiml = f'''
-                <Response>
-                    <Gather input="speech" action="{action_url}" method="POST" timeout="5">
-                        <Say voice="polly.justin">I didn't hear anything. Can you please repeat how I can help?</Say>
-                    </Gather>
-                    <Redirect method="POST">{action_url}</Redirect>
-                </Response>
-                '''
+                retry_text = "I didn't hear anything. Can you please repeat how I can help?"
+                twiml = await create_tts_twiml_with_gather(retry_text, action_url, timeout=5)
+                logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+                logging.info(f"[TTS] /twilio/ai-response latency: {time.time() - start_time:.2f}s")
                 return Response(content=twiml, media_type="application/xml")
             else:
                 # Second retry - end call gracefully
-                twiml = '''
-                <Response>
-                    <Say voice="polly.justin">Sorry, I still didn't hear anything. Goodbye!</Say>
-                </Response>
-                '''
+                twiml = await create_tts_twiml("Sorry, I still didn't hear anything. Goodbye!")
                 if call_id:
                     log_final_decision(call_id, "ended_no_speech")
+                logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+                logging.info(f"[TTS] /twilio/ai-response latency: {time.time() - start_time:.2f}s")
                 return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
@@ -250,6 +404,8 @@ async def twilio_ai_response(request: Request, _=Depends(verify_twilio_request))
             <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR01</Say>
         </Response>
         '''
+        logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+        logging.info(f"[TTS] /twilio/ai-response latency: {time.time() - start_time:.2f}s")
         return Response(content=twiml, media_type="application/xml")
 
 @app.post("/twilio/process-ai")
@@ -282,11 +438,9 @@ async def twilio_process_ai(request: Request, _=Depends(verify_twilio_request)):
         print("[DEBUG] user_speech:", user_speech)
         if not session_id or session_id not in sessions:
             print("[DEBUG] ERR02: Missing or invalid session_id:", session_id)
-            twiml = '''
-            <Response>
-                <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
-            </Response>
-            '''
+            twiml = await create_tts_twiml("Sorry, there was an error. Goodbye! Error code: ERR02")
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return Response(content=twiml, media_type="application/xml")
         session = sessions[session_id]
         bot = session["bot"]
@@ -295,14 +449,10 @@ async def twilio_process_ai(request: Request, _=Depends(verify_twilio_request)):
         if not user_speech or not user_speech.strip():
             print("[DEBUG] No user speech detected, prompting for repeat.")
             action_url = f"/twilio/ai-response?session_id={session_id}&retry=1".replace("&", "&amp;")
-            twiml = f'''
-            <Response>
-                <Gather input="speech" action="{action_url}" method="POST" timeout="5">
-                    <Say voice="polly.justin">I didn't hear anything. Can you please repeat how I can help?</Say>
-                </Gather>
-                <Redirect method="POST">{action_url}</Redirect>
-            </Response>
-            '''
+            retry_text = "I didn't hear anything. Can you please repeat how I can help?"
+            twiml = await create_tts_twiml_with_gather(retry_text, action_url, timeout=5)
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return Response(content=twiml, media_type="application/xml")
         try:
             ai_start = time.time()
@@ -315,56 +465,45 @@ async def twilio_process_ai(request: Request, _=Depends(verify_twilio_request)):
             print("[DEBUG] AI response time:", ai_time, "Total process-ai time:", total_time)
         except Exception as ai_e:
             print("[DEBUG] ERR02: Exception in bot.get_response():", ai_e)
-            twiml = '''
-            <Response>
-                <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
-            </Response>
-            '''
+            twiml = await create_tts_twiml("Sorry, there was an error. Goodbye! Error code: ERR02")
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return Response(content=twiml, media_type="application/xml")
         if "{TRANSFER}" in ai_reply:
             clean_reply = ai_reply.replace("{TRANSFER}", "").strip()
             fallback_url = f"/twilio/transfer-fallback?session_id={session_id}".replace("&", "&amp;")
-            twiml = f'''
-            <Response>
-                <Say voice="polly.justin">{clean_reply}</Say>
-                <Dial timeout="30" record="false" answerOnBridge="true" action="{fallback_url}">{REAL_PHONE_NUMBER}</Dial>
-            </Response>
-            '''
+            twiml = await create_tts_twiml(clean_reply)
+            twiml = twiml.replace('</Response>', f'<Dial timeout="30" record="false" answerOnBridge="true" action="{fallback_url}">{REAL_PHONE_NUMBER}</Dial></Response>')
             response = Response(content=twiml, media_type="application/xml")
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
                 summary = f"Call transferred. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "transferred", summary=summary, outcome="transferred")
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return response
         elif "{END CALL}" in ai_reply:
             clean_reply = ai_reply.replace("{END CALL}", "").strip()
-            twiml = f'''
-            <Response>
-                <Say voice="polly.justin">{clean_reply}</Say>
-            </Response>
-            '''
+            twiml = await create_tts_twiml(clean_reply)
             response = Response(content=twiml, media_type="application/xml")
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
                 summary = f"Call ended. User said: {user_speech[:100]}..."
                 log_final_decision(call_id, "completed", summary=summary, outcome="ended")
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return response
         else:
             action_url = f"/twilio/ai-response?session_id={session_id}&retry=0".replace("&", "&amp;")
-            twiml = f'''
-            <Response>
-                <Gather input="speech" action="{action_url}" method="POST" timeout="6">
-                    <Say voice="polly.justin">{ai_reply}</Say>
-                </Gather>
-                <Redirect method="POST">{action_url}</Redirect>
-            </Response>
-            '''
+            twiml = await create_tts_twiml_with_gather(ai_reply, action_url, timeout=3)
             response = Response(content=twiml, media_type="application/xml")
             if call_id:
                 log_conversation_turn(call_id, turn_index-1, "user", user_speech)
                 log_conversation_turn(call_id, turn_index-1, "bot", ai_reply)
+            logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+            logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
             return response
     except Exception as e:
         print("[DEBUG] ERR02: General exception in /twilio/process-ai:", e)
@@ -373,6 +512,8 @@ async def twilio_process_ai(request: Request, _=Depends(verify_twilio_request)):
             <Say voice="polly.justin">Sorry, there was an error. Goodbye! Error code: ERR02</Say>
         </Response>
         '''
+        logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+        logging.info(f"[TTS] /twilio/process-ai latency: {time.time() - start_time:.2f}s")
         return Response(content=twiml, media_type="application/xml")
 
 @app.post("/twilio/transfer-fallback")
@@ -383,6 +524,7 @@ async def twilio_transfer_fallback(request: Request):
     It provides a graceful fallback message asking the caller to text instead.
     """
     try:
+        start_time = time.time()
         form = await request.form()
         session_id = request.query_params.get("session_id")
         dial_call_status = form.get("DialCallStatus", "unknown")
@@ -404,21 +546,19 @@ async def twilio_transfer_fallback(request: Request):
             '''
         else:
             # Transfer failed (busy, no answer, etc.)
-            twiml = '''
-            <Response>
-                <Say voice="polly.justin">Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible.</Say>
-                <Hangup/>
-            </Response>
-            '''
+            fallback_text = "Unfortunately Vansh is on another call. Please text him and he will get back to you as soon as possible."
+            twiml = await create_tts_twiml(fallback_text)
+            twiml = twiml.replace('</Response>', '<Hangup/></Response>')
+        logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+        logging.info(f"[TTS] /twilio/transfer-fallback latency: {time.time() - start_time:.2f}s")
         return Response(content=twiml, media_type="application/xml")
     except Exception as e:
         # Handle any errors gracefully
-        twiml = '''
-        <Response>
-            <Say voice="polly.justin">Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible. Error code: ERR03</Say>
-            <Hangup/>
-        </Response>
-        '''
+        error_text = "Unfortunately Vansh is unavailable. Please text him and he will get back to you as soon as possible. Error code: ERR03"
+        twiml = await create_tts_twiml(error_text)
+        twiml = twiml.replace('</Response>', '<Hangup/></Response>')
+        logging.info(f"[TTS] TwiML returned: {twiml[:300]}")
+        logging.info(f"[TTS] /twilio/transfer-fallback latency: {time.time() - start_time:.2f}s")
         return Response(content=twiml, media_type="application/xml")
 
 @app.get("/conversations")

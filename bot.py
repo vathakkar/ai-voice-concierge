@@ -100,7 +100,7 @@ class VoiceConciergeBot:
         print("[OPENAI REST REQUEST]", url, json.dumps(payload))
         sys.stdout.flush()
         try:
-            response = httpx.post(url, headers=headers, json=payload, timeout=30)
+            response = httpx.post(url, headers=headers, json=payload, timeout=10)
             print("[OPENAI REST RESPONSE]", response.status_code, response.text)
             sys.stdout.flush()
             response.raise_for_status()
@@ -146,7 +146,7 @@ class VoiceConciergeBot:
         print("[OPENAI REST ANALYZE REQUEST]", url, json.dumps(payload))
         sys.stdout.flush()
         try:
-            response = httpx.post(url, headers=headers, json=payload, timeout=30)
+            response = httpx.post(url, headers=headers, json=payload, timeout=10)
             print("[OPENAI REST ANALYZE RESPONSE]", response.status_code, response.text)
             sys.stdout.flush()
             response.raise_for_status()

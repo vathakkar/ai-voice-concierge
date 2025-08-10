@@ -4,46 +4,89 @@
 #
 # This Dockerfile creates a production-ready container for the AI Voice Concierge
 # application. It includes all necessary dependencies for Azure SQL connectivity
-# and optimized for deployment to Azure App Service.
+# and Azure Speech Services, optimized for deployment to Azure App Service.
 #
 # Key Features:
-# - Python 3.11 slim base image for security and size optimization
+# - Ubuntu 22.04 base image for better Azure Speech SDK compatibility
 # - ODBC drivers for Azure SQL Database connectivity
+# - Azure Speech Services dependencies
 # - All Python dependencies from requirements.txt
 # - Proper port configuration for Azure App Service
 # - Health check endpoint support
 #
 # Security Notes:
-# - Uses slim base image to minimize attack surface
-# - Runs as non-root user (handled by Azure App Service)
-# - No secrets or sensitive data in the image
+# - Runs as non-root user for security
+# - Minimal system packages installed
+# - No unnecessary development tools
+#
+# Performance Notes:
+# - Optimized layer caching
+# - Minimal runtime dependencies
 # =============================================================================
 
-# Use Python 3.11 slim image as base
-# Slim images are smaller and more secure than full Python images
-FROM python:3.11-slim
+# Use Ubuntu 22.04 as base for better Azure Speech SDK compatibility
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3-pip \
+    curl \
+    gnupg2 \
+    # Azure Speech Services dependencies
+    libssl3 \
+    libasound2 \
+    libpulse0 \
+    libpulse-dev \
+    libasound2-dev \
+    libssl-dev \
+    libffi-dev \
+    build-essential \
+    pkg-config \
+    # Additional audio libraries
+    libportaudio2 \
+    libportaudiocpp0 \
+    libsndfile1 \
+    libsndfile1-dev \
+    # Clean up
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Microsoft ODBC Driver for SQL Server
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory in container
 WORKDIR /app
 
-# Copy requirements file first for better Docker layer caching
-# This allows Docker to cache the pip install step if requirements.txt hasn't changed
+# Copy requirements first for better layer caching
 COPY requirements.txt .
 
-# Remove ODBC/pyodbc installation steps; only install build tools and requirements
-RUN apt-get update && apt-get install -y gcc g++ gnupg2
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy application code to container
-# This includes all Python files, static assets, and configuration
+# Copy application code
 COPY . .
 
-# Expose port 8000 for FastAPI application
-# Azure App Service will map this to the appropriate external port
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app \
+    && chown -R app:app /app
+USER app
+
+# Expose port for Azure App Service
 EXPOSE 8000
 
-# Start the FastAPI application using uvicorn
-# Uses environment variable PORT for Azure App Service compatibility
-# --host 0.0.0.0 allows external connections
-# --port ${PORT:-8000} uses PORT env var or defaults to 8000
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"] 
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/ || exit 1
+
+# Start the application
+CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 

@@ -147,9 +147,12 @@ SQLITE_DB_PATH = os.getenv('SQLITE_DB_PATH', 'calls.db')
 # =============================================================================
 # TEXT-TO-SPEECH CONFIGURATION
 # =============================================================================
-# TTS voice configuration (currently unused, Twilio handles TTS)
+# TTS voice configuration for Azure Speech Services
 
-TTS_VOICE = os.getenv('TTS_VOICE', 'en-US-JennyNeural') 
+TTS_VOICE = os.getenv('TTS_VOICE', 'en-US-JennyNeural')
+
+# TTS service configuration
+USE_AZURE_TTS = os.getenv('USE_AZURE_TTS', 'true').lower() == 'true' 
 # =============================================================================
 # TWILIO CONFIGURATION
 # =============================================================================
